@@ -24,7 +24,7 @@ steps:
       '--region', 'us-central1',  # Cheapest region
       '--platform', 'managed',
       '--allow-unauthenticated',
-      '--port', '8000',
+      '--port', '8080',
       '--memory', '1Gi',          # Minimal memory for AI workload
       '--cpu', '1',               # 1 vCPU
       '--concurrency', '80',      # High concurrency to reduce instances
