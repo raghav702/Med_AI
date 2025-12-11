@@ -41,8 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY assistant_chatbot/backend/requirements.txt ./
 RUN pip install --no-cache-dir --no-compile -r requirements.txt
 
-# Copy backend source
-COPY assistant_chatbot/backend/ ./backend/
+# Copy backend source to root (not ./backend/)
+COPY assistant_chatbot/backend/ ./
 
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/dist ./static
@@ -59,5 +59,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=2 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Start the application (now main.py is in root, not backend/)
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
