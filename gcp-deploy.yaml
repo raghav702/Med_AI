@@ -1,0 +1,78 @@
+# Google Cloud Run deployment for minimal cost
+# This configuration optimizes for the lowest possible cost while maintaining functionality
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: medical-assistant
+  annotations:
+    # Enable CPU allocation only during requests (saves cost)
+    run.googleapis.com/cpu-throttling: "true"
+    # Set minimum instances to 0 for maximum cost savings
+    run.googleapis.com/execution-environment: gen2
+spec:
+  template:
+    metadata:
+      annotations:
+        # Cost optimization settings
+        autoscaling.knative.dev/minScale: "0"  # Scale to zero when not in use
+        autoscaling.knative.dev/maxScale: "10"  # Reasonable max for small app
+        run.googleapis.com/cpu-throttling: "true"
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      # Minimum resource allocation for cost savings
+      containerConcurrency: 80  # Handle multiple requests per container
+      timeoutSeconds: 300  # 5 minute timeout
+      containers:
+      - image: gcr.io/PROJECT_ID/medical-assistant:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medical-assistant-secrets
+              key: google-api-key
+        - name: SUPABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: medical-assistant-secrets
+              key: supabase-url
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medical-assistant-secrets
+              key: supabase-anon-key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medical-assistant-secrets
+              key: supabase-service-role-key
+        - name: ENVIRONMENT
+          value: "production"
+        - name: PORT
+          value: "8000"
+        resources:
+          limits:
+            # Minimal resource allocation
+            cpu: "1000m"      # 1 vCPU
+            memory: "1Gi"     # 1GB RAM - minimum for AI workload
+          requests:
+            cpu: "100m"       # 0.1 vCPU when idle
+            memory: "512Mi"   # 512MB minimum
+        # Health check for proper scaling
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+  traffic:
+  - percent: 100
+    latestRevision: true

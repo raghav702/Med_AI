@@ -1,0 +1,66 @@
+# Optimized Google Cloud Build for minimal cost
+# Uses smaller machine types and efficient caching
+
+steps:
+  # Build the Docker image with caching for faster builds
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--cache-from', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
+      '-t', 'gcr.io/$PROJECT_ID/medical-assistant:$COMMIT_SHA',
+      '-t', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
+      '.'
+    ]
+
+  # Push only the latest tag to save storage costs
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/medical-assistant:latest']
+
+  # Deploy to Cloud Run with minimal cost configuration
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'medical-assistant',
+      '--image', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
+      '--region', 'us-central1',  # Cheapest region
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '8000',
+      '--memory', '1Gi',          # Minimal memory for AI workload
+      '--cpu', '1',               # 1 vCPU
+      '--concurrency', '80',      # High concurrency to reduce instances
+      '--max-instances', '10',    # Reasonable limit
+      '--min-instances', '0',     # Scale to zero for cost savings
+      '--cpu-throttling',         # Only allocate CPU during requests
+      '--execution-environment', 'gen2',  # More efficient
+      '--timeout', '300',         # 5 minute timeout
+      '--set-env-vars', 'ENVIRONMENT=production',
+      '--set-secrets', 'GOOGLE_API_KEY=medical-assistant-secrets:google-api-key:latest',
+      '--set-secrets', 'SUPABASE_URL=medical-assistant-secrets:supabase-url:latest',
+      '--set-secrets', 'SUPABASE_ANON_KEY=medical-assistant-secrets:supabase-anon-key:latest',
+      '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=medical-assistant-secrets:supabase-service-role-key:latest'
+    ]
+
+  # Create secrets if they don't exist (run once)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Check if secrets exist, create if not
+        if ! gcloud secrets describe medical-assistant-secrets --quiet; then
+          echo "Creating secrets..."
+          gcloud secrets create medical-assistant-secrets --data-file=/dev/null
+          
+          # You'll need to update these manually after first deployment
+          echo "Please update secrets manually:"
+          echo "gcloud secrets versions add medical-assistant-secrets --data-file=secrets.json"
+        fi
+
+# Use smaller machine type for cost optimization
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_STANDARD_2'  # Smaller than default, sufficient for build
+  diskSizeGb: 50                # Smaller disk
+  
+# Timeout for build (prevents runaway costs)
+timeout: '1200s'  # 20 minutes max
