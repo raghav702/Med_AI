@@ -1172,7 +1172,8 @@ async def ask_legacy(query: Query):
     }
 
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+# Removed uvicorn.run() - Cloud Run starts the server
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="localhost", port=8000)
 
 
