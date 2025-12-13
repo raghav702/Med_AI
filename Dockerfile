@@ -25,25 +25,32 @@ RUN npm ci --no-audit --no-fund
 COPY src/ ./src/
 COPY public/ ./public/
 
-# Copy production environment file
-COPY .env.production ./
+# DO NOT copy .env.production - we use build args instead
+# The .env.production file can conflict with ARG/ENV variables
 
-# Set build-time environment variables for Vite
+# Accept build-time arguments (passed from cloudbuild.yaml)
 ARG VITE_API_BASE_URL
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
+
+# Set as environment variables so Vite can access them during build
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
-# Debug: Show what environment variables are available during build
-RUN echo "🔍 Build-time environment check:" && \
-    echo "VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-NOT_SET}" && \
-    echo "VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:0:20}..." && \
-    echo "VITE_API_BASE_URL: ${VITE_API_BASE_URL:-NOT_SET}"
+# Debug: Show what environment variables Vite will see during build
+RUN echo "🔍 Vite build environment:" && \
+    echo "  VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-NOT_SET}" && \
+    echo "  VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:0:30}..." && \
+    echo "  VITE_API_BASE_URL=${VITE_API_BASE_URL:-NOT_SET}"
 
-# Build the frontend for production
-RUN npm run build
+# Build the frontend - Vite will embed these values into the static files
+RUN npm run build && \
+    echo "✅ Frontend build complete" && \
+    echo "📦 Checking dist folder:" && \
+    ls -la dist/ && \
+    echo "🔍 Verifying embedded config in built files:" && \
+    grep -r "lydxcnvyzqaumfmfktor" dist/assets/ || echo "⚠️ Supabase URL not found in built files!"
 
 # ============================================================================
 # Stage 2: Python Backend Setup
