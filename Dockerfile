@@ -82,5 +82,16 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
+# Security environment variables with defaults
+ENV ENABLE_RATE_LIMITING=true
+ENV RATE_LIMIT_PER_MINUTE=5
+ENV RATE_LIMIT_PER_HOUR=50
+ENV RATE_LIMIT_BLOCK_HOURS=1
+ENV CORS_ALLOW_CREDENTIALS=true
+ENV ENABLE_INPUT_VALIDATION=true
+ENV MAX_MESSAGE_LENGTH=1000
+ENV LOG_VALIDATION_FAILURES=true
+ENV SUSPICIOUS_PATTERN_THRESHOLD=10
+
 # Start the FastAPI application with uvicorn
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]

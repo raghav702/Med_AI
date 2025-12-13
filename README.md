@@ -185,11 +185,15 @@ npm run build
 
 ## 🔒 Security
 
-- Environment variables stored in Google Secret Manager
-- CORS configured for production domains
-- Input validation on all endpoints
-- Rate limiting via Cloud Run
-- Structured logging for audit trails
+The application implements comprehensive security measures to prevent API abuse and protect against malicious requests:
+
+- **Rate Limiting**: IP-based request limiting (5/minute, 50/hour)
+- **CORS Protection**: Domain-restricted API access
+- **Input Validation**: Message length and pattern validation
+- **Environment Security**: Variables stored in Google Secret Manager
+- **Structured Logging**: Security event monitoring and audit trails
+
+For detailed security configuration options, see [SECURITY_CONFIG.md](SECURITY_CONFIG.md).
 
 ## 📈 Scaling
 

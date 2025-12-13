@@ -7,3 +7,5 @@ langchain-google-genai>=1.0.0
 langgraph>=0.0.20
 requests>=2.31.0
 supabase>=2.3.0
+slowapi>=0.1.9
+redis>=5.0.0

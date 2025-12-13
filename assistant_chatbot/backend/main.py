@@ -20,6 +20,19 @@ from session_manager import get_session_manager, SessionManager
 import time
 import traceback
 
+# Import rate limiting middleware
+from rate_limit_middleware import RateLimitMiddleware
+
+# Import input validation middleware
+from input_validation_middleware import InputValidationMiddleware
+
+# Import security configuration
+from security_config import get_security_config
+
+# Import security monitoring components
+from security_logging import get_security_logger, configure_security_logging
+from security_metrics import initialize_security_metrics
+
 # Configure structured logging
 import json as json_lib
 from typing import Any
@@ -374,13 +387,49 @@ def get_fallback_response(task_type: str, error_type: str) -> str:
 
 app = FastAPI(title="AI Medical Assistant API", version="2.0.0")
 
-# Add CORS middleware to allow frontend requests
+# Get security configuration
+security_config = get_security_config()
+
+# Initialize security monitoring
+configure_security_logging("INFO")
+security_metrics_collector = initialize_security_metrics(retention_hours=24, max_events_per_type=10000)
+security_logger = get_security_logger()
+
+# Log security configuration loaded
+security_logger.log_security_config_loaded({
+    "cors_origins": len(security_config.cors.allowed_origins),
+    "rate_limiting_enabled": True,
+    "input_validation_enabled": True,
+    "metrics_retention_hours": 24
+})
+
+# Add CORS middleware with environment-based configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=security_config.cors.allowed_origins,
+    allow_credentials=security_config.cors.allow_credentials,
+    allow_methods=security_config.cors.allow_methods,
+    allow_headers=security_config.cors.allow_headers,
+)
+
+# Add rate limiting middleware (after CORS, before input validation)
+app.add_middleware(
+    RateLimitMiddleware,
+    requests_per_minute=5,
+    requests_per_hour=50,
+    block_duration_seconds=3600,  # 1 hour
+    exempt_paths=["/health", "/docs", "/openapi.json", "/redoc", "/static", "/assets", "/rate-limit/stats"]
+)
+
+# Add input validation middleware (after rate limiting, before application logic)
+app.add_middleware(
+    InputValidationMiddleware,
+    max_message_length=1000,
+    min_message_length=1,
+    max_repeated_chars=10,
+    exempt_paths=["/health", "/docs", "/openapi.json", "/redoc", "/static", "/assets", "/rate-limit/stats"],
+    validation_paths=["/ask", "/ask-legacy"],
+    structured_logger=structured_logger
 )
 
 # Mount static files for frontend (in production)
@@ -510,22 +559,6 @@ async def root():
         }
     }
 
-# Catch-all route for frontend routing (SPA)
-@app.get("/{full_path:path}")
-async def serve_frontend(full_path: str):
-    # Don't intercept API routes
-    if full_path.startswith("ask") or full_path.startswith("health") or full_path.startswith("task-types") or full_path.startswith("doctors") or full_path.startswith("sessions"):
-        raise HTTPException(status_code=404, detail="API endpoint not found")
-    
-    static_dir = os.path.join(os.path.dirname(__file__), "static")
-    index_file = os.path.join(static_dir, "index.html")
-    
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
-    
-    raise HTTPException(status_code=404, detail="Page not found")
-
-
 @app.get("/health")
 async def health_check():
     """
@@ -537,6 +570,209 @@ async def health_check():
         "service": "AI Medical Assistant API",
         "version": "2.0.0"
     }
+
+
+@app.get("/rate-limit/stats")
+async def get_rate_limit_stats():
+    """
+    Get current rate limiting statistics.
+    
+    Returns information about tracked IPs, blocked IPs, and rate limit configuration.
+    Useful for monitoring and debugging rate limiting behavior.
+    """
+    # Find the rate limit middleware instance
+    rate_limit_middleware = None
+    for middleware in app.user_middleware:
+        if isinstance(middleware.cls, type) and issubclass(middleware.cls, RateLimitMiddleware):
+            # Get the middleware instance from the app's middleware stack
+            # This is a bit hacky but necessary since FastAPI doesn't expose middleware instances directly
+            break
+    
+    # For now, return basic configuration info
+    # In a production system, you might want to store the middleware instance globally
+    return {
+        "status": "active",
+        "configuration": {
+            "requests_per_minute": 5,
+            "requests_per_hour": 50,
+            "block_duration_seconds": 3600
+        },
+        "timestamp": datetime.utcnow().isoformat(),
+        "note": "Detailed statistics require middleware instance access"
+    }
+
+
+@app.get("/security/metrics")
+async def get_security_metrics():
+    """
+    Get security metrics and statistics.
+    
+    Returns comprehensive security metrics including:
+    - Rate limiting violations
+    - Input validation failures
+    - CORS violations
+    - Top violating IPs
+    - Recent trends
+    """
+    try:
+        from security_metrics import get_security_metrics_collector
+        
+        metrics_collector = get_security_metrics_collector()
+        metrics_summary = metrics_collector.get_metrics_summary(hours=24)
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.utcnow().isoformat(),
+            "metrics": metrics_summary
+        }
+    
+    except Exception as e:
+        logger.error(f"Error retrieving security metrics: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to retrieve security metrics"
+        )
+
+
+@app.get("/security/metrics/{ip_address}")
+async def get_ip_security_metrics(ip_address: str):
+    """
+    Get security metrics for a specific IP address.
+    
+    Args:
+        ip_address: IP address to analyze
+    
+    Returns:
+        Security metrics and violation history for the specified IP
+    """
+    try:
+        from security_metrics import get_security_metrics_collector
+        
+        metrics_collector = get_security_metrics_collector()
+        ip_metrics = metrics_collector.get_ip_metrics(ip_address, hours=24)
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.utcnow().isoformat(),
+            "ip_metrics": ip_metrics
+        }
+    
+    except Exception as e:
+        logger.error(f"Error retrieving IP metrics for {ip_address}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to retrieve IP security metrics"
+        )
+
+
+@app.get("/security/analysis")
+async def get_security_analysis():
+    """
+    Get security log analysis and threat detection results.
+    
+    Returns analysis of recent security events including:
+    - Detected attack patterns
+    - Security alerts
+    - Recommendations
+    """
+    try:
+        from security_metrics import get_security_metrics_collector
+        from log_analysis import SecurityLogAnalyzer
+        
+        # Get recent security events from metrics collector
+        metrics_collector = get_security_metrics_collector()
+        
+        # Convert metrics to log entries format for analysis
+        log_entries = []
+        current_time = time.time()
+        
+        # Get events from the last hour for analysis
+        for event_type, metrics in metrics_collector._metrics.items():
+            for metric in metrics:
+                if current_time - metric.timestamp <= 3600:  # Last hour
+                    log_entries.append({
+                        "timestamp": datetime.fromtimestamp(metric.timestamp).isoformat(),
+                        "event_type": metric.event_type,
+                        "ip_address": metric.ip_address,
+                        "details": metric.details
+                    })
+        
+        # Analyze the events
+        analyzer = SecurityLogAnalyzer()
+        analysis_results = analyzer.analyze_logs(log_entries, time_window_minutes=60)
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.utcnow().isoformat(),
+            "analysis": analysis_results
+        }
+    
+    except Exception as e:
+        logger.error(f"Error performing security analysis: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to perform security analysis"
+        )
+
+
+@app.get("/security/metrics/export")
+async def export_security_metrics(format: str = "json"):
+    """
+    Export security metrics in various formats.
+    
+    Args:
+        format: Export format ("json" or "prometheus")
+    
+    Returns:
+        Security metrics in requested format
+    """
+    try:
+        from security_metrics import get_security_metrics_collector
+        
+        metrics_collector = get_security_metrics_collector()
+        
+        if format.lower() == "prometheus":
+            metrics_data = metrics_collector.export_metrics("prometheus")
+            return Response(
+                content=metrics_data,
+                media_type="text/plain; version=0.0.4; charset=utf-8"
+            )
+        else:
+            metrics_data = metrics_collector.export_metrics("json")
+            return {
+                "status": "success",
+                "timestamp": datetime.utcnow().isoformat(),
+                "format": format,
+                "data": metrics_data
+            }
+    
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error exporting security metrics: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to export security metrics"
+        )
+
+
+# Catch-all route for frontend routing (SPA)
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    # Don't intercept API routes
+    if full_path.startswith("ask") or full_path.startswith("task-types") or full_path.startswith("doctors") or full_path.startswith("sessions"):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    index_file = os.path.join(static_dir, "index.html")
+    
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    
+    raise HTTPException(status_code=404, detail="Page not found")
 
 
 @app.get("/task-types")
