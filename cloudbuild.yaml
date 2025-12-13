@@ -20,9 +20,9 @@ steps:
       'build',
       '--no-cache',
       '--file', 'Dockerfile',
-      '--build-arg', 'VITE_SUPABASE_URL=https://lydxcnvyzqaumfmfktor.supabase.co',
-      '--build-arg', 'VITE_SUPABASE_ANON_KEY=YOUR_KEY',
-      '--build-arg', 'VITE_API_BASE_URL=https://medai-506044864836.europe-west1.run.app',
+      '--build-arg', 'VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}',
+      '--build-arg', 'VITE_SUPABASE_ANON_KEY=${_VITE_SUPABASE_ANON_KEY}',
+      '--build-arg', 'VITE_API_BASE_URL=${_VITE_API_BASE_URL}',
       '--tag', 'gcr.io/$PROJECT_ID/medical-assistant:$COMMIT_SHA',
       '--tag', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
       '.'
@@ -60,7 +60,6 @@ steps:
       '--set-env-vars', 'ENVIRONMENT=production,PORT=8080,HOST=0.0.0.0,LOG_LEVEL=INFO,ENABLE_RATE_LIMITING=true,RATE_LIMIT_PER_MINUTE=10,RATE_LIMIT_PER_HOUR=50,RATE_LIMIT_BLOCK_HOURS=1,CORS_ALLOW_CREDENTIALS=true,ENABLE_INPUT_VALIDATION=true,MAX_MESSAGE_LENGTH=1000,LOG_VALIDATION_FAILURES=true,SUSPICIOUS_PATTERN_THRESHOLD=10',
       '--set-secrets', 'GOOGLE_API_KEY=GOOGLE_API_KEY:latest',
       '--set-secrets', 'SUPABASE_URL=SUPABASE_URL:latest',
-      '--set-secrets', 'VITE_SUPABASE_ANON_KEY=VITE_SUPABASE_ANON_KEY:latest',
       '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY:latest'
     ]
     waitFor: ['push-image']
@@ -86,6 +85,10 @@ substitutions:
   _MAX_INSTANCES: '10'          # Reasonable limit
   _MIN_INSTANCES: '0'           # Scale to zero for cost savings
   _TIMEOUT: '300'               # 5 minute timeout
+  # Frontend build-time variables (embedded into static files)
+  _VITE_SUPABASE_URL: 'https://lydxcnvyzqaumfmfktor.supabase.co'
+  _VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5ZHhjbnZ5enFhdW1mbWZrdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDA2MTYsImV4cCI6MjA3Mzc3NjYxNn0.k6KTuE60TCOQi9YK4CdEZPmHYVc6__13qtVqa8lSn_o'
+  _VITE_API_BASE_URL: 'https://medai-506044864836.europe-west1.run.app'
 
 # Build configuration for cost optimization
 options:
