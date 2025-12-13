@@ -586,6 +586,24 @@ async def health_check():
     }
 
 
+@app.get("/debug/config")
+async def debug_config():
+    """
+    Debug endpoint to check configuration (be careful with sensitive data!)
+    """
+    import os
+    return {
+        "environment": os.getenv("ENVIRONMENT", "unknown"),
+        "port": os.getenv("PORT", "unknown"),
+        "has_google_api_key": bool(os.getenv("GOOGLE_API_KEY")),
+        "has_supabase_url": bool(os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL")),
+        "has_supabase_anon_key": bool(os.getenv("VITE_SUPABASE_ANON_KEY")),
+        "has_service_role_key": bool(os.getenv("SUPABASE_SERVICE_ROLE_KEY")),
+        "llm_available": llm is not None,
+        "tools_count": len(TOOLS_DICT) if TOOLS_DICT else 0
+    }
+
+
 @app.get("/rate-limit/stats")
 async def get_rate_limit_stats():
     """

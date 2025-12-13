@@ -33,6 +33,16 @@ export function validateSupabaseConfig(): ConfigValidationResult {
   const url = import.meta.env.VITE_SUPABASE_URL;
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   
+  // In production, provide helpful debugging info
+  if (import.meta.env.PROD) {
+    console.log('🔍 Supabase config check:', {
+      hasUrl: !!url,
+      hasAnonKey: !!anonKey,
+      urlValue: url ? `${url.substring(0, 20)}...` : 'undefined',
+      mode: import.meta.env.MODE
+    });
+  }
+  
   if (!url) {
     errors.push('VITE_SUPABASE_URL environment variable is required');
   } else if (!url.startsWith('https://')) {
@@ -58,8 +68,14 @@ export function getSupabaseConfig(): SupabaseConfig | null {
   const validation = validateSupabaseConfig();
   
   if (!validation.isValid) {
-    const errorMessage = `Supabase configuration is invalid:\n${validation.errors.join('\n')}`;
-    console.error(errorMessage);
+    // In production, log as warning instead of error
+    if (import.meta.env.PROD) {
+      console.warn('⚠️ Supabase configuration is missing or invalid:', validation.errors);
+      console.warn('The app will continue to work, but Supabase features will be disabled.');
+    } else {
+      const errorMessage = `Supabase configuration is invalid:\n${validation.errors.join('\n')}`;
+      console.error(errorMessage);
+    }
     return null;
   }
   

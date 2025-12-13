@@ -25,6 +25,9 @@ RUN npm ci --no-audit --no-fund
 COPY src/ ./src/
 COPY public/ ./public/
 
+# Copy production environment file
+COPY .env.production ./
+
 # Set build-time environment variables for Vite
 ARG VITE_API_BASE_URL
 ARG VITE_SUPABASE_URL
@@ -32,6 +35,12 @@ ARG VITE_SUPABASE_ANON_KEY
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
+# Debug: Show what environment variables are available during build
+RUN echo "🔍 Build-time environment check:" && \
+    echo "VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-NOT_SET}" && \
+    echo "VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:0:20}..." && \
+    echo "VITE_API_BASE_URL: ${VITE_API_BASE_URL:-NOT_SET}"
 
 # Build the frontend for production
 RUN npm run build

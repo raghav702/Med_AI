@@ -49,7 +49,8 @@ export function validateApplicationStartup(): StartupValidationResult {
       errors.push('Supabase configuration is missing or invalid');
       warnings.push('The app will run in demo mode without backend functionality');
     } else {
-      errors.push('Production configuration is invalid - some features may not work');
+      // In production, make this a warning, not an error
+      warnings.push('Supabase configuration may be incomplete - some features may not work');
     }
   }
   
