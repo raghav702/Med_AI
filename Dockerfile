@@ -49,6 +49,11 @@ RUN echo "🔍 Vite build environment:" && \
     echo "  VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:0:30}..." && \
     echo "  VITE_API_BASE_URL=${VITE_API_BASE_URL:-NOT_SET}"
 
+RUN echo "🔍 ENV CHECK BEFORE VITE BUILD"
+RUN env | grep VITE || echo "❌ NO VITE VARS FOUND"
+RUN node -e "console.log('VITE_SUPABASE_URL =', process.env.VITE_SUPABASE_URL)"
+RUN node -e "console.log('VITE_SUPABASE_ANON_KEY =', process.env.VITE_SUPABASE_ANON_KEY?.slice(0,10))"
+
 # Build the frontend - Vite will embed these values into the static files
 RUN npm run build && \
     echo "✅ Frontend build complete" && \
