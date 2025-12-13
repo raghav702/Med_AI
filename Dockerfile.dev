@@ -6,6 +6,8 @@
 # ============================================================================
 FROM node:18-alpine AS frontend-dev
 
+RUN echo "🚨 USING UPDATED DOCKERFILE 🚨"
+
 WORKDIR /app
 
 # Copy package files
