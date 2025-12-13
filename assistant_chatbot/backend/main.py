@@ -384,8 +384,14 @@ app.add_middleware(
 )
 
 # Mount static files for frontend (in production)
-static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
+    # Mount the assets directory directly for React app assets
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+    
+    # Mount the static directory for other static files
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # ============================================================================
@@ -487,7 +493,7 @@ except Exception as e:
 @app.get("/")
 async def root():
     # In production, serve the frontend
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
     index_file = os.path.join(static_dir, "index.html")
     
     if os.path.exists(index_file):
@@ -511,7 +517,7 @@ async def serve_frontend(full_path: str):
     if full_path.startswith("ask") or full_path.startswith("health") or full_path.startswith("task-types") or full_path.startswith("doctors") or full_path.startswith("sessions"):
         raise HTTPException(status_code=404, detail="API endpoint not found")
     
-    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
     index_file = os.path.join(static_dir, "index.html")
     
     if os.path.exists(index_file):

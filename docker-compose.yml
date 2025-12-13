@@ -1,0 +1,71 @@
+# Docker Compose for Medical AI Assistant
+# Supports both development and production environments
+
+version: '3.8'
+
+services:
+  # Full-stack application (frontend + backend)
+  medical-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=production
+      - PORT=8080
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - medical-assistant-network
+
+  # Development services (uncomment for local development)
+  # frontend-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     target: frontend-dev
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./src:/app/src
+  #     - ./public:/app/public
+  #   environment:
+  #     - VITE_API_URL=http://localhost:8000
+  #   networks:
+  #     - medical-assistant-network
+
+  # backend-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     target: backend-dev
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./assistant_chatbot/backend:/app
+  #   environment:
+  #     - ENVIRONMENT=development
+  #     - PORT=8000
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - medical-assistant-network
+
+networks:
+  medical-assistant-network:
+    driver: bridge
+
+volumes:
+  medical-assistant-data:

@@ -1,0 +1,59 @@
+# Docker Compose for Development
+# Provides hot reloading and development-friendly configuration
+
+version: '3.8'
+
+services:
+  # Frontend development server
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./index.html:/app/index.html:ro
+      - ./package.json:/app/package.json:ro
+      - ./vite.config.ts:/app/vite.config.ts:ro
+      - ./tailwind.config.ts:/app/tailwind.config.ts:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - NODE_ENV=development
+    networks:
+      - dev-network
+    restart: unless-stopped
+
+  # Backend development server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: backend-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./assistant_chatbot/backend:/app:ro
+    environment:
+      - ENVIRONMENT=development
+      - PORT=8000
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    networks:
+      - dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  dev-network:
+    driver: bridge

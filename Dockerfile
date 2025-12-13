@@ -1,11 +1,15 @@
-# Minimal cost Dockerfile optimized for Google Cloud Run
-# Uses smaller base images and multi-stage build for reduced size
+# Production Dockerfile for Full-Stack Medical AI Assistant
+# Optimized for Google Cloud Run deployment with minimal cost and maximum performance
 
-# Frontend build stage
+# ============================================================================
+# Stage 1: Frontend Build (React + Vite)
+# ============================================================================
 FROM node:18-alpine AS frontend-builder
+
+# Set working directory
 WORKDIR /app
 
-# Copy package files first for better caching
+# Copy package files for better Docker layer caching
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
@@ -14,21 +18,33 @@ COPY postcss.config.js ./
 COPY eslint.config.js ./
 COPY index.html ./
 
-# Install all dependencies (needed for build)
+# Install all dependencies (including dev dependencies needed for build)
 RUN npm ci --no-audit --no-fund
 
-# Copy source and build
+# Copy source code
 COPY src/ ./src/
 COPY public/ ./public/
+
+# Set build-time environment variables for Vite
+ARG VITE_API_BASE_URL
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
+# Build the frontend for production
 RUN npm run build
 
-# Python backend stage - using slim image for smaller size
+# ============================================================================
+# Stage 2: Python Backend Setup
+# ============================================================================
 FROM python:3.11-slim AS backend
 
 # Set working directory
 WORKDIR /app
 
-# Install only essential system dependencies
+# Install system dependencies (minimal set for production)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
@@ -37,27 +53,34 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Copy requirements and install Python dependencies
-COPY assistant_chatbot/backend/requirements.txt ./
+# Copy Python requirements and install dependencies
+COPY assistant_chatbot/backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --no-compile -r requirements.txt
 
-# Copy backend source to root (not ./backend/)
+# Copy backend source code to app root
 COPY assistant_chatbot/backend/ ./
 
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/dist ./static
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app \
+RUN useradd --create-home --shell /bin/bash --uid 1000 app \
     && chown -R app:app /app
+
+# Switch to non-root user
 USER app
 
-# Expose port
+# Expose port 8080 (required by Cloud Run)
 EXPOSE 8080
 
-# Health check
+# Add health check for container orchestration
 HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=2 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application (now main.py is in root, not backend/)
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Set environment variables for production
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
+
+# Start the FastAPI application with uvicorn
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]

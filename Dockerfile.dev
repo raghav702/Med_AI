@@ -1,0 +1,125 @@
+# Development Dockerfile for Medical AI Assistant
+# Supports hot reloading and development workflows
+
+# ============================================================================
+# Frontend Development Stage
+# ============================================================================
+FROM node:18-alpine AS frontend-dev
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY vite.config.ts ./
+COPY tailwind.config.ts ./
+COPY postcss.config.js ./
+COPY eslint.config.js ./
+COPY index.html ./
+
+# Install all dependencies (including dev dependencies)
+RUN npm install
+
+# Copy source code
+COPY src/ ./src/
+COPY public/ ./public/
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Start development server with hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# ============================================================================
+# Backend Development Stage
+# ============================================================================
+FROM python:3.11-slim AS backend-dev
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY assistant_chatbot/backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install development dependencies
+RUN pip install --no-cache-dir \
+    watchdog \
+    pytest \
+    pytest-asyncio \
+    black \
+    flake8
+
+# Copy backend source
+COPY assistant_chatbot/backend/ ./
+
+# Expose backend port
+EXPOSE 8000
+
+# Set environment for development
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=development
+
+# Start with auto-reload for development
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# ============================================================================
+# Full Development Stack (Combined)
+# ============================================================================
+FROM python:3.11-slim AS full-dev
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    curl \
+    ca-certificates \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Setup Python backend
+COPY assistant_chatbot/backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Setup Node.js frontend
+COPY package*.json ./
+RUN npm install
+
+# Copy all source code
+COPY assistant_chatbot/backend/ ./backend/
+COPY src/ ./src/
+COPY public/ ./public/
+COPY *.json ./
+COPY *.ts ./
+COPY *.js ./
+COPY index.html ./
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+# Start backend in background\n\
+cd /app && python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload &\n\
+# Start frontend\n\
+npm run dev -- --host 0.0.0.0\n\
+' > /app/start-dev.sh && chmod +x /app/start-dev.sh
+
+# Expose both ports
+EXPOSE 5173 8000
+
+# Set environment
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=development
+
+# Start both services
+CMD ["/app/start-dev.sh"]

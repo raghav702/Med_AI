@@ -84,13 +84,13 @@ def create_llm_with_fallback():
     """Create LLM with fallback models if primary fails"""
     models_to_try = [
         {
-            "model": "gemini-pro",
+            "model": "gemini-2.5-flash-lite",
             "temperature": 0.3,
             "max_tokens": 1024,
             "top_p": 0.8
         },
         {
-            "model": "gemini-1.0-pro",
+            "model": "gemini-pro",
             "temperature": 0.2,
             "max_tokens": 1024,
             "top_p": 0.9

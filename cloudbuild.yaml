@@ -1,66 +1,85 @@
-# Optimized Google Cloud Build for minimal cost
-# Uses smaller machine types and efficient caching
+# Google Cloud Build Configuration
+# Optimized for production deployment with cost-effective settings
 
 steps:
-  # Build the Docker image with caching for faster builds
+  # Step 1: Build the production Docker image
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
     args: [
       'build',
+      '--file', 'Dockerfile',
       '--cache-from', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
-      '-t', 'gcr.io/$PROJECT_ID/medical-assistant:$COMMIT_SHA',
-      '-t', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
+      '--tag', 'gcr.io/$PROJECT_ID/medical-assistant:$COMMIT_SHA',
+      '--tag', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
       '.'
     ]
+    timeout: '1200s'
 
-  # Push only the latest tag to save storage costs
+  # Step 2: Push the image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/medical-assistant:latest']
+    id: 'push-image'
+    args: [
+      'push', 'gcr.io/$PROJECT_ID/medical-assistant:latest'
+    ]
+    waitFor: ['build-image']
 
-  # Deploy to Cloud Run with minimal cost configuration
+  # Step 3: Deploy to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-service'
     args: [
       'run', 'deploy', 'medical-assistant',
       '--image', 'gcr.io/$PROJECT_ID/medical-assistant:latest',
-      '--region', 'us-central1',  # Cheapest region
+      '--region', '${_REGION}',
       '--platform', 'managed',
       '--allow-unauthenticated',
       '--port', '8080',
-      '--memory', '1Gi',          # Minimal memory for AI workload
-      '--cpu', '1',               # 1 vCPU
-      '--concurrency', '80',      # High concurrency to reduce instances
-      '--max-instances', '10',    # Reasonable limit
-      '--min-instances', '0',     # Scale to zero for cost savings
-      '--cpu-throttling',         # Only allocate CPU during requests
-      '--execution-environment', 'gen2',  # More efficient
-      '--timeout', '300',         # 5 minute timeout
-      '--set-env-vars', 'ENVIRONMENT=production',
-      '--set-secrets', 'GOOGLE_API_KEY=medical-assistant-secrets:google-api-key:latest',
-      '--set-secrets', 'SUPABASE_URL=medical-assistant-secrets:supabase-url:latest',
-      '--set-secrets', 'SUPABASE_ANON_KEY=medical-assistant-secrets:supabase-anon-key:latest',
-      '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=medical-assistant-secrets:supabase-service-role-key:latest'
+      '--memory', '${_MEMORY}',
+      '--cpu', '${_CPU}',
+      '--concurrency', '${_CONCURRENCY}',
+      '--max-instances', '${_MAX_INSTANCES}',
+      '--min-instances', '${_MIN_INSTANCES}',
+      '--cpu-throttling',
+      '--execution-environment', 'gen2',
+      '--timeout', '${_TIMEOUT}',
+      '--set-env-vars', 'ENVIRONMENT=production,PORT=8080',
+      '--set-secrets', 'GOOGLE_API_KEY=medical-assistant-secrets:latest:google-api-key',
+      '--set-secrets', 'SUPABASE_URL=medical-assistant-secrets:latest:supabase-url',
+      '--set-secrets', 'SUPABASE_ANON_KEY=medical-assistant-secrets:latest:supabase-anon-key',
+      '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=medical-assistant-secrets:latest:supabase-service-role-key'
     ]
+    waitFor: ['push-image']
 
-  # Create secrets if they don't exist (run once)
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # Check if secrets exist, create if not
-        if ! gcloud secrets describe medical-assistant-secrets --quiet; then
-          echo "Creating secrets..."
-          gcloud secrets create medical-assistant-secrets --data-file=/dev/null
-          
-          # You'll need to update these manually after first deployment
-          echo "Please update secrets manually:"
-          echo "gcloud secrets versions add medical-assistant-secrets --data-file=secrets.json"
-        fi
+  # Step 4: Verify deployment health
+  - name: 'gcr.io/cloud-builders/curl'
+    id: 'health-check'
+    args: [
+      '-f',
+      '--retry', '5',
+      '--retry-delay', '10',
+      '--retry-max-time', '60',
+      'https://medical-assistant-${_REGION}-${PROJECT_ID}.a.run.app/health'
+    ]
+    waitFor: ['deploy-service']
 
-# Use smaller machine type for cost optimization
+# Substitution variables with defaults
+substitutions:
+  _REGION: 'us-central1'        # Cheapest region
+  _MEMORY: '1Gi'                # Minimum for AI workload
+  _CPU: '1'                     # 1 vCPU
+  _CONCURRENCY: '80'            # High concurrency for cost efficiency
+  _MAX_INSTANCES: '10'          # Reasonable limit
+  _MIN_INSTANCES: '0'           # Scale to zero for cost savings
+  _TIMEOUT: '300'               # 5 minute timeout
+
+# Build configuration for cost optimization
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_STANDARD_2'  # Smaller than default, sufficient for build
-  diskSizeGb: 50                # Smaller disk
-  
-# Timeout for build (prevents runaway costs)
-timeout: '1200s'  # 20 minutes max
+  machineType: 'E2_STANDARD_2'  # Cost-effective machine type
+  diskSizeGb: 50                # Minimal disk size
+  substitutionOption: 'ALLOW_LOOSE'
+
+# Overall timeout
+timeout: '1800s'  # 30 minutes maximum
+
+# Tags for organization
+tags: ['medical-assistant', 'production', 'cloud-run']
