@@ -22,7 +22,8 @@ else:
     print(f"✓ Google API Key loaded successfully (length: {len(GOOGLE_API_KEY)})")
 
 # Supabase Configuration
-SUPABASE_URL = os.getenv("VITE_SUPABASE_URL", "")
+# Support both VITE_SUPABASE_URL (for local development) and SUPABASE_URL (for Cloud Run)
+SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:

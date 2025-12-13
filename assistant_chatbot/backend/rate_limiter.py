@@ -238,6 +238,64 @@ class RateLimiter:
         
         return headers
     
+    def unblock_ip(self, ip_address: str) -> bool:
+        """
+        Manually unblock a specific IP address.
+        
+        Args:
+            ip_address: IP address to unblock
+            
+        Returns:
+            True if IP was found and unblocked, False if IP not found
+        """
+        entry = self.ip_data.get(ip_address)
+        if entry and entry.blocked_until:
+            entry.blocked_until = None
+            logger.info(f"Manually unblocked IP: {ip_address}")
+            return True
+        return False
+    
+    def clear_all_blocks(self) -> int:
+        """
+        Clear all blocked IPs and rate limit data.
+        
+        Returns:
+            Number of IPs that were cleared
+        """
+        cleared_count = 0
+        for entry in self.ip_data.values():
+            if entry.blocked_until:
+                entry.blocked_until = None
+                cleared_count += 1
+        
+        # Optionally clear all tracking data
+        # self.ip_data.clear()
+        
+        logger.info(f"Cleared {cleared_count} blocked IPs")
+        return cleared_count
+    
+    def get_blocked_ips(self) -> List[Dict[str, any]]:
+        """
+        Get list of currently blocked IPs with details.
+        
+        Returns:
+            List of blocked IP information
+        """
+        blocked_ips = []
+        current_time = time.time()
+        
+        for ip, entry in self.ip_data.items():
+            if entry.is_blocked():
+                time_remaining = int(entry.blocked_until - current_time)
+                blocked_ips.append({
+                    "ip_address": ip,
+                    "blocked_until": entry.blocked_until,
+                    "time_remaining_seconds": time_remaining,
+                    "request_count": len(entry.requests)
+                })
+        
+        return blocked_ips
+
     def get_stats(self) -> Dict[str, any]:
         """
         Get statistics about current rate limiting state.
@@ -262,5 +320,6 @@ class RateLimiter:
             "active_ips_last_hour": active_ips,
             "requests_per_minute_limit": self.requests_per_minute,
             "requests_per_hour_limit": self.requests_per_hour,
-            "block_duration_seconds": self.block_duration_seconds
+            "block_duration_seconds": self.block_duration_seconds,
+            "blocked_ips": self.get_blocked_ips()
         }

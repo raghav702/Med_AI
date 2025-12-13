@@ -74,7 +74,7 @@ USER app
 EXPOSE 8080
 
 # Add health check for container orchestration
-HEALTHCHECK --interval=60s --timeout=30s --start-period=30s --retries=2 \
+HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Set environment variables for production

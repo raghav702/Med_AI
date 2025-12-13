@@ -41,12 +41,12 @@ steps:
       '--cpu-throttling',
       '--execution-environment', 'gen2',
       '--timeout', '${_TIMEOUT}',
+      '--startup-cpu-boost',
       '--set-env-vars', 'ENVIRONMENT=production,PORT=8080,ENABLE_RATE_LIMITING=true,RATE_LIMIT_PER_MINUTE=5,RATE_LIMIT_PER_HOUR=50,RATE_LIMIT_BLOCK_HOURS=1,CORS_ALLOW_CREDENTIALS=true,ENABLE_INPUT_VALIDATION=true,MAX_MESSAGE_LENGTH=1000,LOG_VALIDATION_FAILURES=true,SUSPICIOUS_PATTERN_THRESHOLD=10',
-      '--set-secrets', 'GOOGLE_API_KEY=medical-assistant-secrets:latest:google-api-key',
-      '--set-secrets', 'SUPABASE_URL=medical-assistant-secrets:latest:supabase-url',
-      '--set-secrets', 'SUPABASE_ANON_KEY=medical-assistant-secrets:latest:supabase-anon-key',
-      '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=medical-assistant-secrets:latest:supabase-service-role-key',
-      '--set-secrets', 'CORS_ALLOWED_ORIGINS=medical-assistant-secrets:latest:cors-allowed-origins'
+      '--set-secrets', 'GOOGLE_API_KEY=GOOGLE_API_KEY:latest',
+      '--set-secrets', 'SUPABASE_URL=SUPABASE_URL:latest',
+      '--set-secrets', 'VITE_SUPABASE_ANON_KEY=VITE_SUPABASE_ANON_KEY:latest',
+      '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY:latest'
     ]
     waitFor: ['push-image']
 

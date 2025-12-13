@@ -84,7 +84,13 @@ def create_llm_with_fallback():
     """Create LLM with fallback models if primary fails"""
     models_to_try = [
         {
-            "model": "gemini-2.5-flash-lite",
+            "model": "gemini-2.0-flash-exp",
+            "temperature": 0.3,
+            "max_tokens": 1024,
+            "top_p": 0.8
+        },
+        {
+            "model": "gemini-1.5-flash",
             "temperature": 0.3,
             "max_tokens": 1024,
             "top_p": 0.8
@@ -97,29 +103,39 @@ def create_llm_with_fallback():
         }
     ]
     
+    if not GOOGLE_API_KEY:
+        logger.error("GOOGLE_API_KEY not found in environment")
+        return None
+    
     for i, config in enumerate(models_to_try):
         try:
             llm = ChatGoogleGenerativeAI(
                 google_api_key=GOOGLE_API_KEY,
                 **config
             )
-            # Test the model with a simple query
-            test_response = llm.invoke("Hello")
-            logger.info(f"Successfully initialized {config['model']}")
+            # Don't test the model during initialization - just create it
+            # Testing can fail during container startup due to network issues
+            logger.info(f"LLM configured with {config['model']}")
             return llm
         except Exception as e:
-            logger.warning(f"Failed to initialize {config['model']}: {str(e)}")
+            logger.warning(f"Failed to configure {config['model']}: {str(e)}")
             if i == len(models_to_try) - 1:
-                raise Exception(f"All model fallbacks failed. Last error: {str(e)}")
+                logger.error(f"All model configurations failed. Last error: {str(e)}")
+                return None
             continue
 
 try:
     llm = create_llm_with_fallback()
-    graph = create_react_agent(llm, tools=tools)
-    logger.info("AI agent initialized successfully")
+    if llm:
+        graph = create_react_agent(llm, tools=tools)
+        logger.info("AI agent initialized successfully")
+    else:
+        graph = None
+        logger.warning("AI agent initialization skipped - LLM not available")
 except Exception as e:
     logger.error(f"Failed to initialize AI agent: {str(e)}")
-    raise
+    llm = None
+    graph = None
 
 
 # -------------------------------
