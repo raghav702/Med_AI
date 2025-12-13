@@ -3,8 +3,13 @@
 
 # ============================================================================
 # Stage 1: Frontend Build (React + Vite)
+
+
+
 # ============================================================================
 FROM node:18-alpine AS frontend-builder
+
+RUN echo "🚨 USING UPDATED DOCKERFILE 🚨"
 
 # Set working directory
 WORKDIR /app
