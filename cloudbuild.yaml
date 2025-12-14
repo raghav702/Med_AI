@@ -47,8 +47,6 @@ steps:
       '--cpu-throttling',
       '--execution-environment', 'gen2',
       '--timeout', '${_TIMEOUT}',
-      '--startup-cpu-boost',
-      '--set-env-vars', 'ENVIRONMENT=production,PORT=8080,HOST=0.0.0.0,LOG_LEVEL=INFO,ENABLE_RATE_LIMITING=true,RATE_LIMIT_PER_MINUTE=10,RATE_LIMIT_PER_HOUR=50,RATE_LIMIT_BLOCK_HOURS=1,CORS_ALLOW_CREDENTIALS=true,ENABLE_INPUT_VALIDATION=true,MAX_MESSAGE_LENGTH=1000,LOG_VALIDATION_FAILURES=true,SUSPICIOUS_PATTERN_THRESHOLD=10',
       '--set-secrets', 'GOOGLE_API_KEY=GOOGLE_API_KEY:latest',
       '--set-secrets', 'SUPABASE_URL=SUPABASE_URL:latest',
       '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY:latest'
@@ -84,7 +82,7 @@ substitutions:
 # Build configuration for cost optimization
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_STANDARD_2'  # Cost-effective machine type
+  # machineType: 'E2_STANDARD_2'  # Cost-effective machine type
   diskSizeGb: 50                # Minimal disk size
   substitutionOption: 'ALLOW_LOOSE'
 
