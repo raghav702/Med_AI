@@ -18,9 +18,7 @@ steps:
       - VITE_API_BASE_URL=https://medai-506044864836.europe-west1.run.app
       - --tag
       - gcr.io/$PROJECT_ID/medical-assistant:latest
-      - .      git add Dockerfile
-      git commit -m "Fix: Move ARG declarations to top of Docker stage before they're used"
-      git push
+      - .
     timeout: '1200s'
 
   # Step 2: Push the image to Container Registry
