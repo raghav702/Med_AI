@@ -11,6 +11,16 @@ FROM node:18-alpine AS frontend-builder
 
 RUN echo "🚨 USING UPDATED DOCKERFILE 🚨"
 
+# Accept build-time arguments FIRST (before they're used)
+ARG VITE_API_BASE_URL
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+
+# Set as environment variables immediately
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 # Set working directory
 WORKDIR /app
 
@@ -29,19 +39,6 @@ RUN npm ci --no-audit --no-fund
 # Copy source code
 COPY src/ ./src/
 COPY public/ ./public/
-
-# DO NOT copy .env.production - we use build args instead
-# The .env.production file can conflict with ARG/ENV variables
-
-# Accept build-time arguments (passed from cloudbuild.yaml)
-ARG VITE_API_BASE_URL
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_ANON_KEY
-
-# Set as environment variables so Vite can access them during build
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
 # Debug: Show what environment variables Vite will see during build
 RUN echo "🔍 Vite build environment:" && \
