@@ -15,7 +15,7 @@ steps:
       - '--build-arg'
       - 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5ZHhjbnZ5enFhdW1mbWZrdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDA2MTYsImV4cCI6MjA3Mzc3NjYxNn0.k6KTuE60TCOQi9YK4CdEZPmHYVc6__13qtVqa8lSn_o'
       - '--build-arg'
-      - 'VITE_API_BASE_URL=https://medai-506044864836.europe-west1.run.app'
+      - 'VITE_API_BASE_URL=https://medical-assistant-506044864836.us-central1.run.app'
       - '--tag'
       - 'gcr.io/$PROJECT_ID/medical-assistant:latest'
       - '.'
@@ -77,7 +77,7 @@ substitutions:
   # Frontend build-time variables (embedded into static files)
   _VITE_SUPABASE_URL: 'https://lydxcnvyzqaumfmfktor.supabase.co'
   _VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5ZHhjbnZ5enFhdW1mbWZrdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDA2MTYsImV4cCI6MjA3Mzc3NjYxNn0.k6KTuE60TCOQi9YK4CdEZPmHYVc6__13qtVqa8lSn_o'
-  _VITE_API_BASE_URL: 'https://medai-506044864836.europe-west1.run.app'
+  _VITE_API_BASE_URL: 'https://medical-assistant-506044864836.us-central1.run.app'
 
 # Build configuration for cost optimization
 options:
