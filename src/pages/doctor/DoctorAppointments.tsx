@@ -1,10 +1,10 @@
 import React from 'react';
-import { DoctorDashboardLayout } from '@/components/layout/DoctorDashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { DoctorAppointmentManagement } from '@/components/doctor/DoctorAppointmentManagement';
 
 export const DoctorAppointments: React.FC = () => {
   return (
-    <DoctorDashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div>
@@ -19,6 +19,6 @@ export const DoctorAppointments: React.FC = () => {
           <DoctorAppointmentManagement />
         </div>
       </div>
-    </DoctorDashboardLayout>
+    </NavigationLayout>
   );
 };

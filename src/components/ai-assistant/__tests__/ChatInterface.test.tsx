@@ -22,7 +22,7 @@ describe('ChatInterface', () => {
     render(<ChatInterface onSendMessage={mockOnSendMessage} />);
     
     const input = screen.getByPlaceholderText('Describe your symptoms or health concerns...');
-    const sendButton = screen.getByRole('button');
+    const sendButton = screen.getByRole('button', { name: /send/i });
     
     fireEvent.change(input, { target: { value: 'I have a headache' } });
     fireEvent.click(sendButton);
@@ -62,7 +62,7 @@ describe('ChatInterface', () => {
     render(<ChatInterface isLoading={true} />);
     
     const input = screen.getByPlaceholderText('Describe your symptoms or health concerns...');
-    const sendButton = screen.getByRole('button');
+    const sendButton = screen.getByRole('button', { name: /send/i });
     
     expect(input).toBeDisabled();
     expect(sendButton).toBeDisabled();
@@ -72,7 +72,7 @@ describe('ChatInterface', () => {
     const mockOnSendMessage = vi.fn();
     render(<ChatInterface onSendMessage={mockOnSendMessage} />);
     
-    const sendButton = screen.getByRole('button');
+    const sendButton = screen.getByRole('button', { name: /send/i });
     
     fireEvent.click(sendButton);
     

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ImprovedChatInterface } from '@/components/ai-assistant/ImprovedChatInterface';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -66,7 +66,7 @@ const ImprovedAIAssistant: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="container mx-auto p-6 max-w-6xl">
         {/* Hero Section */}
         <div className="mb-8 text-center">
@@ -236,7 +236,7 @@ const ImprovedAIAssistant: React.FC = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 };
 

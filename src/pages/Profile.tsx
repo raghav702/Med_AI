@@ -2,7 +2,7 @@ import React from 'react';
 import { UserProfile } from '@/components/profile';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const Profile: React.FC = () => {
@@ -11,7 +11,7 @@ export const Profile: React.FC = () => {
   // Show loading state while checking authentication
   if (initializing) {
     return (
-      <DashboardLayout>
+      <NavigationLayout>
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <div className="space-y-6">
@@ -36,7 +36,7 @@ export const Profile: React.FC = () => {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </NavigationLayout>
     );
   }
 
@@ -46,7 +46,7 @@ export const Profile: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
@@ -59,6 +59,6 @@ export const Profile: React.FC = () => {
           <UserProfile />
         </div>
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 };

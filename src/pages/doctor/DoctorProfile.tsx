@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DoctorDashboardLayout } from "@/components/layout/DoctorDashboardLayout";
+import { NavigationLayout } from "@/components/layout/NavigationLayout";
 import { DoctorProfileForm } from "@/components/doctor/DoctorProfileForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,7 +65,7 @@ export const DoctorProfile: React.FC = () => {
 
   if (loading) {
     return (
-      <DoctorDashboardLayout>
+      <NavigationLayout>
         <div className="p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="space-y-2">
@@ -78,13 +78,13 @@ export const DoctorProfile: React.FC = () => {
             </div>
           </div>
         </div>
-      </DoctorDashboardLayout>
+      </NavigationLayout>
     );
   }
 
   if (error) {
     return (
-      <DoctorDashboardLayout>
+      <NavigationLayout>
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <Alert variant="destructive">
@@ -93,12 +93,12 @@ export const DoctorProfile: React.FC = () => {
             </Alert>
           </div>
         </div>
-      </DoctorDashboardLayout>
+      </NavigationLayout>
     );
   }
 
   return (
-    <DoctorDashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Header */}
@@ -127,6 +127,6 @@ export const DoctorProfile: React.FC = () => {
           />
         </div>
       </div>
-    </DoctorDashboardLayout>
+    </NavigationLayout>
   );
 };

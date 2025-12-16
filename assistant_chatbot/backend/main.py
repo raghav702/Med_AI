@@ -1116,7 +1116,7 @@ async def find_nearest_doctors(request: NearestDoctorsRequest):
 class AgentRequest(BaseModel):
     """Request model for AI agent interactions"""
     message: str = Field(..., min_length=1, description="User's input message")
-    task_type: str = Field(..., description="Selected feature type: symptom_analysis, doctor_matching, health_qa, medication_info")
+    task_type: Optional[str] = Field('auto', description="Selected feature type: auto (default), symptom_analysis, doctor_matching, health_qa, medication_info")
     session_id: Optional[str] = Field(None, description="Session identifier for conversation continuity")
     user_location: Optional[str] = Field(None, description="User location for location-based features")
     metadata: Optional[Dict[str, Any]] = Field(None, description="Additional context information")
@@ -1125,10 +1125,10 @@ class AgentRequest(BaseModel):
     @classmethod
     def validate_task_type(cls, v):
         """Validate that task_type is one of the allowed values"""
-        allowed_types = ['symptom_analysis', 'doctor_matching', 'health_qa', 'medication_info']
-        if v not in allowed_types:
+        allowed_types = ['auto', 'symptom_analysis', 'doctor_matching', 'health_qa', 'medication_info']
+        if v and v not in allowed_types:
             raise ValueError(f"task_type must be one of {allowed_types}, got '{v}'")
-        return v
+        return v or 'auto'
     
     @field_validator('message')
     @classmethod
@@ -1284,10 +1284,18 @@ async def ask(request: AgentRequest):
                 detail=f"Failed to create agent for task type '{request.task_type}': {str(e)}"
             )
         
+        # Prepare system prompt with location context if available
+        enhanced_system_prompt = system_prompt
+        if request.user_location:
+            enhanced_system_prompt = f"""{system_prompt}
+
+IMPORTANT: User's current location is available: {request.user_location}
+When using doctor_locator_tool, you can use this location directly instead of asking the user."""
+        
         # Prepare messages for the agent
         inputs = {
             "messages": [
-                ("system", system_prompt),
+                ("system", enhanced_system_prompt),
                 ("user", request.message)
             ]
         }
@@ -1298,8 +1306,18 @@ async def ask(request: AgentRequest):
                 request.metadata = {}
             request.metadata['user_location'] = request.user_location
         
+        # Configure thread for conversation history (CRITICAL for memory)
+        # COST OPTIMIZATION: Limit history to last 6 messages (3 exchanges) to reduce token usage
+        config = {
+            "configurable": {
+                "thread_id": session_id,  # Use session_id as thread_id to maintain history
+                "checkpoint_ns": "",
+                "checkpoint_id": None
+            }
+        }
+        
         # Stream the agent's response with retry logic
-        logger.info(f"Request {request_id}: Invoking agent for task_type={request.task_type}")
+        logger.info(f"Request {request_id}: Invoking agent for task_type={request.task_type}, session={session_id}")
         
         tool_called = None
         final_response = None
@@ -1310,7 +1328,7 @@ async def ask(request: AgentRequest):
             def invoke_agent():
                 nonlocal tool_called, final_response, tools_used
                 
-                stream = agent.stream(inputs, stream_mode="updates")
+                stream = agent.stream(inputs, config=config, stream_mode="updates")
                 
                 # Parse the response
                 tool_called, final_response = parse_response(stream)

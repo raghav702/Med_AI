@@ -93,8 +93,8 @@ export const HeaderNavigation: React.FC = () => {
       },
       {
         title: 'AI Assistant',
-        href: '/doctors',
-        icon: Search,
+        href: '/ai-assistant',
+        icon: Sparkles,
       },
       {
         title: 'Browse Doctors',

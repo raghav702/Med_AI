@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { appointmentService } from '@/services/appointment';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -145,7 +145,7 @@ const Appointments = () => {
   };
 
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -194,7 +194,7 @@ const Appointments = () => {
         )}
 
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 };
 

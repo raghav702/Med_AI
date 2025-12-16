@@ -1,10 +1,10 @@
 import React from 'react';
 import { ChatInterface } from '@/components/ai-assistant';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 
 const AIAssistantDemo: React.FC = () => {
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="container mx-auto p-6 max-w-4xl">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -32,7 +32,7 @@ const AIAssistantDemo: React.FC = () => {
           </ul>
         </div>
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 };
 

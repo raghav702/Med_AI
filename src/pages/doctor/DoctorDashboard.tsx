@@ -1,5 +1,5 @@
 import React from 'react';
-import { DoctorDashboardLayout } from '@/components/layout/DoctorDashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { DoctorDashboardStats } from '@/components/doctor/DoctorDashboardStats';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,7 @@ export const DoctorDashboard: React.FC = () => {
   ];
 
   return (
-    <DoctorDashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
@@ -169,6 +169,6 @@ export const DoctorDashboard: React.FC = () => {
           </Card>
         </div>
       </div>
-    </DoctorDashboardLayout>
+    </NavigationLayout>
   );
 };

@@ -86,19 +86,19 @@ def create_llm_with_fallback():
         {
             "model": "gemini-2.0-flash-exp",
             "temperature": 0.3,
-            "max_tokens": 1024,
+            "max_tokens": 512,  # Reduced from 1024 for cost savings
             "top_p": 0.8
         },
         {
             "model": "gemini-1.5-flash",
             "temperature": 0.3,
-            "max_tokens": 1024,
+            "max_tokens": 512,  # Reduced from 1024 for cost savings
             "top_p": 0.8
         },
         {
             "model": "gemini-pro",
             "temperature": 0.2,
-            "max_tokens": 1024,
+            "max_tokens": 512,  # Reduced from 1024 for cost savings
             "top_p": 0.9
         }
     ]

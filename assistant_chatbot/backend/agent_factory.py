@@ -14,6 +14,7 @@ from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.checkpoint.memory import MemorySaver
 
 from task_config import TaskConfig, get_task_configs, validate_task_type
 
@@ -55,6 +56,9 @@ class UnifiedAgentFactory:
         
         self.llm = llm
         self.task_configs = get_task_configs(tools_dict)
+        
+        # Initialize memory saver for conversation history (CRITICAL for context retention)
+        self.checkpointer = MemorySaver()
     
     def create_agent(self, task_type: str) -> CompiledStateGraph:
         """
@@ -97,8 +101,8 @@ class UnifiedAgentFactory:
         if not config:
             raise ValueError(f"No configuration found for task type: '{task_type}'")
         
-        # Create ReAct agent with task-specific tools
-        agent = create_react_agent(self.llm, tools=config.tools)
+        # Create ReAct agent with task-specific tools AND checkpointer for memory
+        agent = create_react_agent(self.llm, tools=config.tools, checkpointer=self.checkpointer)
         
         return agent
     

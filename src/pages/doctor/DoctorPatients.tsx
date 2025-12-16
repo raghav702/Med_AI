@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DoctorDashboardLayout } from '@/components/layout/DoctorDashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { PatientList } from '@/components/doctor/PatientList';
 import { PatientProfileView } from '@/components/doctor/PatientProfileView';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ export const DoctorPatients: React.FC = () => {
 
   if (selectedPatient) {
     return (
-      <DoctorDashboardLayout>
+      <NavigationLayout>
         <div className="p-6">
           <div className="max-w-7xl mx-auto">
             <PatientProfileView 
@@ -30,12 +30,12 @@ export const DoctorPatients: React.FC = () => {
             />
           </div>
         </div>
-      </DoctorDashboardLayout>
+      </NavigationLayout>
     );
   }
 
   return (
-    <DoctorDashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
@@ -103,6 +103,6 @@ export const DoctorPatients: React.FC = () => {
           </Tabs>
         </div>
       </div>
-    </DoctorDashboardLayout>
+    </NavigationLayout>
   );
 };

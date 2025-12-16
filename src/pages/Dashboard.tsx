@@ -3,7 +3,7 @@ import { SessionExpiryNotification } from '@/components/session/SessionExpiryNot
 import { useUserType } from '@/hooks/useUserType';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Header } from '@/components/dashboard/Header';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { HeroSection } from '@/components/dashboard/HeroSection';
 import { AIFeaturesGrid } from '@/components/dashboard/AIFeaturesGrid';
 import { RecentConversations } from '@/components/dashboard/RecentConversations';
@@ -23,8 +23,7 @@ const Dashboard = () => {
   // Show loading while determining user type
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <NavigationLayout>
         <div className="container mx-auto px-4 md:px-6 py-8 space-y-6">
           <div className="space-y-2">
             <Skeleton className="h-8 w-64" />
@@ -44,7 +43,7 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-      </div>
+      </NavigationLayout>
     );
   }
 
@@ -55,21 +54,19 @@ const Dashboard = () => {
 
   // Default patient dashboard with new AI-focused design
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 md:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
+    <NavigationLayout>
+      <div className="container mx-auto px-4 md:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
         {/* Session Expiry Notification */}
         <SessionExpiryNotification />
         
         <HeroSection />
         <AIFeaturesGrid />
         <AboutApp />
-      </main>
+      </div>
 
       <FloatingAIButton />
       <Footer />
-    </div>
+    </NavigationLayout>
   );
 };
 

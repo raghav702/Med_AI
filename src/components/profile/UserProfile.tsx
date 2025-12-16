@@ -15,7 +15,8 @@ import {
   Edit, 
   Phone, 
   Calendar,
-  Mail
+  Mail,
+  AlertTriangle
 } from 'lucide-react';
 import { ProfileEditForm } from './ProfileEditForm';
 

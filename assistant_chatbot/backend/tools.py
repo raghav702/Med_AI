@@ -306,7 +306,7 @@ def doctor_locator_tool(prompt: str) -> str:
             for doctor in doctors:
                 # Check if doctor has latitude and longitude fields
                 doctor_lat = doctor.get('latitude') or doctor.get('lat')
-                doctor_lon = doctor.get('longitude') or doctor.get('lon')
+                doctor_lon = doctor.get('longitude') or doctor.get('lng')  # Fixed: lng not lon
                 
                 if doctor_lat is not None and doctor_lon is not None:
                     try:
@@ -342,13 +342,16 @@ def doctor_locator_tool(prompt: str) -> str:
             if 'distance_km' in doctor:
                 distance_info = f"   🚗 {doctor['distance_km']} km away"
             
+            # Include doctor ID for booking (hidden in brackets for frontend parsing)
+            doctor_id = doctor.get('id', 'unknown')
+            
             doctor_info = f"""
-{idx}. {doctor.get('name', 'Unknown')} - {doctor.get('specialty', 'N/A')}
+{idx}. {doctor.get('name', 'Unknown')} - {doctor.get('specialty', 'N/A')} [DOCTOR_ID:{doctor_id}]
    📍 {doctor.get('address', 'Address not available')}{distance_info}
    ⭐ {doctor.get('aggregate_rating', 'N/A')}/5 | {doctor.get('experience', 'N/A')} years experience
    💰 ₹{doctor.get('price_range', 'N/A')} consultation
    🏥 {doctor.get('works_for', 'N/A')}
-   📞 Contact via appointment booking
+   📞 Click 'Book Appointment' to schedule a visit
 """
             doctors_list.append(doctor_info)
         
@@ -552,7 +555,7 @@ def find_nearest_doctors_tool(user_lat: float, user_lon: float, specialty: str =
         for doctor in response.data:
             # Check if doctor has latitude and longitude fields
             doctor_lat = doctor.get('latitude') or doctor.get('lat')
-            doctor_lon = doctor.get('longitude') or doctor.get('lon')
+            doctor_lon = doctor.get('longitude') or doctor.get('lng')  # Fixed: lng not lon
             
             if doctor_lat is not None and doctor_lon is not None:
                 try:
@@ -587,20 +590,27 @@ def find_nearest_doctors_tool(user_lat: float, user_lon: float, specialty: str =
         doctors_with_distance.sort(key=lambda x: x['distance_km'])
         nearest_doctors = doctors_with_distance[:limit]
         
-        result = {
-            "message": f"Found {len(nearest_doctors)} nearest doctors for {specialty} within {radius_km}km",
-            "search_params": {
-                "user_lat": user_lat,
-                "user_lon": user_lon,
-                "specialty": specialty,
-                "radius_km": radius_km,
-                "limit": limit
-            },
-            "doctors": nearest_doctors
-        }
+        if not nearest_doctors:
+            return f"No doctors found for specialty '{specialty}' within {radius_km}km of your location."
+        
+        # Format as text with doctor IDs for frontend parsing
+        doctors_list = []
+        for idx, doctor in enumerate(nearest_doctors, 1):
+            doctor_info = f"""
+{idx}. {doctor['name']} - {doctor['specialty']} [DOCTOR_ID:{doctor['id']}]
+   📍 {doctor['address']}
+   🚗 {doctor['distance_km']} km away
+   ⭐ {doctor.get('rating', 'N/A')}/5 | {doctor.get('experience', 'N/A')} years experience
+   💰 ₹{doctor.get('price_range', 'N/A')} consultation
+   🏥 {doctor.get('works_for', 'N/A')}
+   📞 Click 'Book Appointment' to schedule a visit
+"""
+            doctors_list.append(doctor_info)
+        
+        result = f"Found {len(nearest_doctors)} nearest doctor(s) for {specialty} within {radius_km}km:\n" + "\n".join(doctors_list)
         
         logger.info(f"find_nearest_doctors_tool: Found {len(nearest_doctors)} doctors within {radius_km}km")
-        return json.dumps(result)
+        return result
         
     except Exception as e:
         logger.error(f"find_nearest_doctors_tool: Error - {str(e)}", exc_info=True)

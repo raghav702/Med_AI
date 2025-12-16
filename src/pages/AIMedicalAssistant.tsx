@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, User, AlertCircle, Loader2, Stethoscope, Search, AlertTriangle, Activity, UserPlus, HelpCircle, Pill } from 'lucide-react';
+import { Bot, Send, User, AlertCircle, Loader2, Stethoscope, Search, AlertTriangle, Activity, UserPlus, HelpCircle, Pill, MapPin, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type TaskType = 'symptom_analysis' | 'doctor_matching' | 'health_qa' | 'medication_info';
+type TaskType = 'symptom_analysis' | 'doctor_matching' | 'health_qa' | 'medication_info' | 'auto';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -29,17 +29,48 @@ interface Message {
 
 export default function AIMedicalAssistant() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Restore from sessionStorage (cleared when tab closes)
+    const saved = sessionStorage.getItem('ai-chat-messages');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [taskType, setTaskType] = useState<TaskType>('symptom_analysis');
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [taskType, setTaskType] = useState<TaskType | 'auto'>('auto');
+  const [sessionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationDetected, setLocationDetected] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Save messages to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('ai-chat-messages', JSON.stringify(messages));
+  }, [messages]);
 
   // Task type configurations
   const taskConfigs = {
+    auto: {
+      title: 'Smart Assistant',
+      icon: Bot,
+      description: 'I automatically understand what you need - just ask naturally',
+      placeholder: 'Ask me anything: symptoms, find doctors, health questions, or medication info',
+      color: 'bg-gradient-to-r from-blue-500 to-purple-500',
+      hoverColor: 'hover:from-blue-600 hover:to-purple-600',
+    },
     symptom_analysis: {
       title: 'Symptom Analysis',
       icon: Activity,
@@ -74,12 +105,55 @@ export default function AIMedicalAssistant() {
     },
   };
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive with smooth behavior
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }
-  }, [messages]);
+  }, [messages, isLoading]);
+
+  // Auto-detect user location on mount
+  useEffect(() => {
+    const detectLocation = async () => {
+      // Try GPS first
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lon: position.coords.longitude
+            });
+            setLocationDetected(true);
+          },
+          async (error) => {
+            // GPS failed, try IP-based location as fallback
+            try {
+              const response = await fetch('https://ipapi.co/json/');
+              const data = await response.json();
+              if (data.latitude && data.longitude) {
+                setUserLocation({
+                  lat: parseFloat(data.latitude),
+                  lon: parseFloat(data.longitude)
+                });
+                setLocationDetected(true);
+              }
+            } catch (ipError) {
+              console.log('Location detection failed, will ask user if needed');
+            }
+          },
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+        );
+      }
+    };
+
+    detectLocation();
+  }, []);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -94,6 +168,11 @@ export default function AIMedicalAssistant() {
     setInput('');
     setIsLoading(true);
     setError(null);
+    
+    // Keep input focused after sending message
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
 
     let retryCount = 0;
     const maxRetries = 2;
@@ -114,6 +193,7 @@ export default function AIMedicalAssistant() {
             message: userMessage.content,
             task_type: taskType,
             session_id: sessionId,
+            user_location: userLocation ? `${userLocation.lat},${userLocation.lon}` : undefined,
           }),
           signal: controller.signal,
         });
@@ -250,6 +330,11 @@ export default function AIMedicalAssistant() {
     }
 
     setIsLoading(false);
+    
+    // Re-focus input after response received
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -265,6 +350,7 @@ export default function AIMedicalAssistant() {
     const toolConfig: Record<string, { label: string; variant: 'default' | 'destructive' | 'secondary' }> = {
       medgemma_triage_tool: { label: 'Medical Triage', variant: 'default' },
       doctor_locator_tool: { label: 'Doctor Finder', variant: 'secondary' },
+      find_nearest_doctors_tool: { label: 'Doctor Finder', variant: 'secondary' },
       emergency_alert_tool: { label: 'Emergency', variant: 'destructive' },
     };
 
@@ -278,96 +364,102 @@ export default function AIMedicalAssistant() {
     );
   };
 
+  // Parse doctor IDs from message content and render booking buttons
+  const renderMessageContent = (content: string) => {
+    // Check if message contains doctor listings with IDs
+    const doctorIdPattern = /\[DOCTOR_ID:([^\]]+)\]/g;
+    const matches = [...content.matchAll(doctorIdPattern)];
+    
+    if (matches.length === 0) {
+      // No doctor IDs, return plain text
+      return <p className="text-sm whitespace-pre-wrap">{content}</p>;
+    }
+
+    // Extract doctor info and IDs
+    const lines = content.split('\n');
+    const doctorBlocks: Array<{ text: string; id: string | null }> = [];
+    let currentBlock = '';
+    let currentId: string | null = null;
+
+    lines.forEach((line) => {
+      const match = line.match(/\[DOCTOR_ID:([^\]]+)\]/);
+      if (match) {
+        // This line has a doctor ID - save previous block and start new one
+        if (currentBlock) {
+          doctorBlocks.push({ text: currentBlock, id: currentId });
+        }
+        currentId = match[1];
+        currentBlock = line.replace(/\[DOCTOR_ID:[^\]]+\]/, '').trim();
+      } else {
+        // Continue building current block
+        currentBlock += (currentBlock ? '\n' : '') + line;
+      }
+    });
+
+    // Don't forget the last block
+    if (currentBlock) {
+      doctorBlocks.push({ text: currentBlock, id: currentId });
+    }
+
+    return (
+      <div className="space-y-3">
+        {doctorBlocks.map((block, idx) => (
+          <div key={idx}>
+            <p className="text-sm whitespace-pre-wrap">{block.text}</p>
+            {block.id && (
+              <Button
+                size="sm"
+                onClick={() => navigate(`/doctor-discovery?doctorId=${block.id}`)}
+                className="mt-2"
+              >
+                <Calendar className="h-3 w-3 mr-1" />
+                Book Appointment
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="h-[calc(100vh-8rem)] flex flex-col">
-        {/* Header */}
-        <div className="mb-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
-                <Bot className="h-8 w-8 text-primary" />
-                AI Medical Assistant
-              </h1>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                Get medical guidance, find doctors, and receive emergency support
-              </p>
-            </div>
-            <Button
-              onClick={() => navigate('/doctor-discovery')}
-              variant="outline"
-              className="flex items-center gap-2 touch-manipulation"
-            >
-              <Search className="h-4 w-4" />
-              Browse Doctors
-            </Button>
-          </div>
-
-          {/* Feature Selection Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {(Object.keys(taskConfigs) as TaskType[]).map((type) => {
-              const config = taskConfigs[type];
-              const Icon = config.icon;
-              const isActive = taskType === type;
-              
-              return (
-                <Button
-                  key={type}
-                  onClick={() => setTaskType(type)}
-                  variant={isActive ? 'default' : 'outline'}
-                  className={`h-auto py-3 px-4 flex flex-col items-start gap-2 ${
-                    isActive ? config.color + ' text-white ' + config.hoverColor : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    <Icon className="h-5 w-5" />
-                    <span className="font-semibold text-sm">{config.title}</span>
-                  </div>
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Feature Description */}
-          <Alert className="mt-3">
-            <div className="flex items-start gap-2">
-              {(() => {
-                const Icon = taskConfigs[taskType].icon;
-                return <Icon className="h-4 w-4 mt-0.5" />;
-              })()}
-              <AlertDescription className="text-sm">
-                <strong>{taskConfigs[taskType].title}:</strong> {taskConfigs[taskType].description}
-              </AlertDescription>
-            </div>
-          </Alert>
-        </div>
-
         {/* Warning Alert */}
-        <Alert className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            This AI assistant provides general guidance only. For medical emergencies, call emergency services immediately.
-            Always consult with qualified healthcare professionals for diagnosis and treatment.
+        <Alert className="mb-0 py-2 rounded-b-none border-b-0 shadow-none">
+          <AlertCircle className="h-3.5 w-3.5" />
+          <AlertDescription className="text-xs flex items-center justify-between">
+            <span>
+              This is an AI assistant. Always consult a doctor before taking any medication or making medical decisions. For emergencies, call 112.
+            </span>
+            {locationDetected && (
+              <Badge variant="secondary" className="text-xs ml-2">
+                <MapPin className="h-3 w-3 mr-1" />
+                Location Detected
+              </Badge>
+            )}
           </AlertDescription>
         </Alert>
 
         {/* Chat Card */}
-        <Card className="flex-1 flex flex-col">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Bot className="h-5 w-5" />
+        <Card className="flex-1 flex flex-col rounded-t-none border-t-0 mt-0 shadow-none overflow-hidden">
+          <CardHeader className="py-2 px-4 border-b">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Bot className="h-4 w-4" />
               Chat with AI Assistant
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
             {/* Messages Area */}
             <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-              <div className="space-y-4 py-4">
+              <div className="space-y-4 pt-4 pb-2">
                 {messages.length === 0 && (
-                  <div className="text-center text-gray-500 py-8">
+                  <div className="text-center text-gray-500 py-6">
                     <Bot className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                     <p className="text-lg font-medium">Welcome to AI Medical Assistant</p>
-                    <p className="text-sm mt-2">Ask me about symptoms, find doctors, or get medical guidance</p>
+                    <p className="text-sm mt-2 text-gray-700">
+                      <strong className="text-blue-900">I can help you with:</strong> Symptom analysis, finding doctors, health questions, medication information, and emergency support.
+                    </p>
                     <div className="mt-6 space-y-2 text-left max-w-md mx-auto">
                       <p className="text-sm font-medium">Try asking:</p>
                       <ul className="text-sm space-y-1 text-gray-600">
@@ -429,7 +521,7 @@ export default function AIMedicalAssistant() {
                               : 'bg-gray-100 text-gray-900'
                           }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          {renderMessageContent(message.content)}
                         </div>
                         <div className="flex flex-wrap items-center gap-2 mt-1">
                           <span className="text-xs text-gray-500">
@@ -500,15 +592,17 @@ export default function AIMedicalAssistant() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="border-t p-4">
-              <div className="flex gap-2">
+            <div className="border-t px-4 pt-3">
+              <div className="flex gap-2 mb-1.5">
                 <Input
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={taskConfigs[taskType].placeholder}
+                  placeholder="Ask me anything: symptoms, find doctors, health questions, or medication info..."
                   disabled={isLoading}
                   className="flex-1"
+                  autoFocus
                 />
                 <Button
                   onClick={sendMessage}
@@ -522,13 +616,13 @@ export default function AIMedicalAssistant() {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 leading-tight pb-3">
                 Press Enter to send • Shift+Enter for new line
               </p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 }

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { doctorService } from '@/services/doctor';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { DoctorSearchFilters } from '@/components/doctor/DoctorSearchFilters';
 import { DoctorList } from '@/components/doctor/DoctorList';
 import { DoctorComparison } from '@/components/doctor/DoctorComparison';
+import { AppointmentBooking } from '@/components/appointments';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { LoadingStateManager } from '@/components/ui/loading-state-manager';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -25,6 +26,8 @@ export default function DoctorDiscovery() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showComparison, setShowComparison] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bookingDoctorId, setBookingDoctorId] = useState<string | null>(null);
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
   const deviceType = useDeviceType();
   const { isMobile, isTablet } = deviceType || { isMobile: false, isTablet: false };
   const pageSize = isMobile ? 8 : 12;
@@ -48,6 +51,20 @@ export default function DoctorDiscovery() {
     
     setFilters(initialFilters);
   }, [searchParams]);
+
+  // Handle doctorId from URL params (for booking from AI chat)
+  useEffect(() => {
+    const doctorIdParam = searchParams.get('doctorId');
+    if (doctorIdParam) {
+      setBookingDoctorId(doctorIdParam);
+      setShowBookingDialog(true);
+      
+      // Remove doctorId from URL after opening dialog
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('doctorId');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Fetch doctors based on filters
   const {
@@ -96,7 +113,7 @@ export default function DoctorDiscovery() {
   ).length;
 
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -329,6 +346,20 @@ export default function DoctorDiscovery() {
           </Tabs>
         </LoadingStateManager>
       </div>
-    </DashboardLayout>
+
+      {/* Appointment Booking Dialog */}
+      {bookingDoctorId && (
+        <AppointmentBooking
+          doctorId={bookingDoctorId}
+          open={showBookingDialog}
+          onOpenChange={(open) => {
+            setShowBookingDialog(open);
+            if (!open) {
+              setBookingDoctorId(null);
+            }
+          }}
+        />
+      )}
+    </NavigationLayout>
   );
 }

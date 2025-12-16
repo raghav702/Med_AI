@@ -39,6 +39,25 @@ class TaskConfig:
 # SYSTEM PROMPTS FOR EACH TASK TYPE
 # ============================================================================
 
+UNIFIED_AUTO_PROMPT = """
+You are a Medical AI Assistant. Detect user intent and use tools immediately.
+
+TOOLS:
+1. **medgemma_triage_tool** - For symptoms ("headache", "fever", "chest pain")
+2. **doctor_locator_tool** - For finding doctors ("find cardiologist in Delhi")
+   Format: "specialty=<type>, location=<city>". If no specialty, use "General Physician".
+3. **emergency_alert_tool** - For emergencies (chest pain, severe bleeding, can't breathe)
+4. **medication_lookup_tool** - For medication info ("what is aspirin")
+5. **drug_interaction_tool** - For drug interactions ("aspirin with ibuprofen")
+
+RULES:
+- Use tools immediately when intent is clear
+- City names are enough for location (don't ask for coordinates)
+- **IMPORTANT: Return tool output EXACTLY as provided. Do NOT summarize or reformat doctor information. Include ALL details.**
+- Be concise and helpful
+- Always recommend professional consultation for serious issues
+"""
+
 SYMPTOM_ANALYSIS_PROMPT = """
 You are a Medical Triage Assistant specializing in symptom analysis.
 
@@ -178,6 +197,21 @@ def create_task_configs(tools_dict: dict) -> dict:
         Dictionary mapping task_type strings to TaskConfig objects
     """
     return {
+        "auto": TaskConfig(
+            task_type="auto",
+            system_prompt=UNIFIED_AUTO_PROMPT,
+            tools=[
+                tools_dict['medgemma_triage_tool'],
+                tools_dict['doctor_locator_tool'],
+                tools_dict['emergency_alert_tool'],
+                tools_dict.get('medication_lookup_tool'),
+                tools_dict.get('drug_interaction_tool'),
+                tools_dict.get('find_nearest_doctors_tool', tools_dict['doctor_locator_tool']),
+            ],
+            description="Intelligent mode - automatically detects user intent and routes to appropriate tools",
+            requires_session=True
+        ),
+        
         "symptom_analysis": TaskConfig(
             task_type="symptom_analysis",
             system_prompt=SYMPTOM_ANALYSIS_PROMPT,
@@ -246,6 +280,13 @@ def get_task_configs(tools_dict: dict = None) -> dict:
     if tools_dict is None:
         # Return configs with placeholder tools for validation/testing
         return {
+            "auto": TaskConfig(
+                task_type="auto",
+                system_prompt=UNIFIED_AUTO_PROMPT,
+                tools=[],  # Placeholder
+                description="Intelligent mode - automatically detects user intent and routes to appropriate tools",
+                requires_session=True
+            ),
             "symptom_analysis": TaskConfig(
                 task_type="symptom_analysis",
                 system_prompt=SYMPTOM_ANALYSIS_PROMPT,
@@ -293,7 +334,7 @@ def validate_task_type(task_type: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    valid_types = ["symptom_analysis", "doctor_matching", "health_qa", "medication_info"]
+    valid_types = ["auto", "symptom_analysis", "doctor_matching", "health_qa", "medication_info"]
     return task_type in valid_types
 
 
@@ -304,7 +345,7 @@ def get_supported_task_types() -> List[str]:
     Returns:
         List of task type strings
     """
-    return ["symptom_analysis", "doctor_matching", "health_qa", "medication_info"]
+    return ["auto", "symptom_analysis", "doctor_matching", "health_qa", "medication_info"]
 
 
 def get_task_description(task_type: str) -> str:

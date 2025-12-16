@@ -70,7 +70,9 @@ class CORSConfig:
                 "http://localhost:8080",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:5173",
-                "http://127.0.0.1:8080"
+                "http://127.0.0.1:8080",
+                "http://192.168.1.19:8080",
+                "http://192.168.1.19:5173"
             ]
             
             # Add any additional development origins from environment

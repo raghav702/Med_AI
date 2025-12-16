@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppointmentHistoryWithRatings } from '@/components/appointments/AppointmentHistoryWithRatings';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -16,7 +16,7 @@ const MedicalRecords = () => {
 
   if (!user) {
     return (
-      <DashboardLayout>
+      <NavigationLayout>
         <div className="p-6">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -25,12 +25,12 @@ const MedicalRecords = () => {
             </AlertDescription>
           </Alert>
         </div>
-      </DashboardLayout>
+      </NavigationLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <NavigationLayout>
       <div className="p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground">Medical Records</h1>
@@ -41,7 +41,7 @@ const MedicalRecords = () => {
         
         <AppointmentHistoryWithRatings patientId={user.id} />
       </div>
-    </DashboardLayout>
+    </NavigationLayout>
   );
 };
 
