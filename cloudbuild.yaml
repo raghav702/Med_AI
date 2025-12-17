@@ -47,6 +47,7 @@ steps:
       '--cpu-throttling',
       '--execution-environment', 'gen2',
       '--timeout', '${_TIMEOUT}',
+      '--vpc-egress', 'all-traffic',
       '--set-secrets', 'GOOGLE_API_KEY=GOOGLE_API_KEY:latest',
       '--set-secrets', 'SUPABASE_URL=SUPABASE_URL:latest',
       '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY:latest'
