@@ -114,63 +114,69 @@ export default function DoctorDiscovery() {
 
   return (
     <NavigationLayout>
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 px-2 sm:px-0">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Find Doctors</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Find Doctors</h1>
+            <p className="text-gray-600 mt-1 text-xs sm:text-sm lg:text-base">
               Discover and book appointments with qualified healthcare professionals
             </p>
           </div>
           
-          {/* AI Assistant Button */}
-          <Button
-            onClick={() => navigate('/ai-assistant')}
-            className="flex items-center gap-2 touch-manipulation"
-            variant="default"
-          >
-            <Bot className="h-4 w-4" />
-            AI Medical Assistant
-          </Button>
-          
-          {!isMobile && (
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
-              {selectedDoctors.length > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowComparison(!showComparison)}
-                  className="flex items-center gap-2 touch-manipulation"
-                >
-                  <GitCompare className="h-4 w-4" />
-                  Compare ({selectedDoctors.length})
-                </Button>
-              )}
-              
-              <div className="flex items-center border rounded-lg">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="rounded-r-none touch-manipulation"
-                  aria-pressed={viewMode === 'grid'}
-                  aria-label="Grid view"
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="rounded-l-none touch-manipulation"
-                  aria-pressed={viewMode === 'list'}
-                  aria-label="List view"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
+          {/* Action buttons row */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+            {/* AI Assistant Button */}
+            <Button
+              onClick={() => navigate('/ai-assistant')}
+              className="flex items-center justify-center gap-2 touch-manipulation w-full sm:w-auto order-2 sm:order-1"
+              variant="default"
+              size="sm"
+            >
+              <Bot className="h-4 w-4" />
+              <span className="sm:inline">AI Medical Assistant</span>
+            </Button>
+            
+            {/* View controls - desktop only */}
+            {!isMobile && (
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                {selectedDoctors.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="flex items-center gap-2 touch-manipulation"
+                    size="sm"
+                  >
+                    <GitCompare className="h-4 w-4" />
+                    Compare ({selectedDoctors.length})
+                  </Button>
+                )}
+                
+                <div className="flex items-center border rounded-lg">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="rounded-r-none touch-manipulation"
+                    aria-pressed={viewMode === 'grid'}
+                    aria-label="Grid view"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                    className="rounded-l-none touch-manipulation"
+                    aria-pressed={viewMode === 'list'}
+                    aria-label="List view"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Search and Filters - Mobile-optimized */}
@@ -203,11 +209,11 @@ export default function DoctorDiscovery() {
 
         {/* Mobile Action Bar */}
         {isMobile && (
-          <div className="flex items-center justify-between gap-2 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {doctorsResponse?.count || 0} doctors found
+              <span className="text-xs text-gray-600">
+                {doctorsResponse?.count || 0} found
               </span>
             </div>
             
@@ -217,9 +223,9 @@ export default function DoctorDiscovery() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowComparison(!showComparison)}
-                  className="touch-manipulation"
+                  className="touch-manipulation h-8 px-2"
                 >
-                  <GitCompare className="h-4 w-4 mr-1" />
+                  <GitCompare className="h-3.5 w-3.5 mr-1" />
                   {selectedDoctors.length}
                 </Button>
               )}
@@ -229,21 +235,21 @@ export default function DoctorDiscovery() {
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
-                  className="rounded-r-none p-2 touch-manipulation"
+                  className="rounded-r-none p-1.5 h-8 w-8 touch-manipulation"
                   aria-pressed={viewMode === 'grid'}
                   aria-label="Grid view"
                 >
-                  <Grid className="h-4 w-4" />
+                  <Grid className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode('list')}
-                  className="rounded-l-none p-2 touch-manipulation"
+                  className="rounded-l-none p-1.5 h-8 w-8 touch-manipulation"
                   aria-pressed={viewMode === 'list'}
                   aria-label="List view"
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
