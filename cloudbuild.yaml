@@ -2,20 +2,33 @@
 # Optimized for production deployment with cost-effective settings
 
 steps:
+  # Step 0: Debug substitution variables
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'debug-vars'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔍 Debugging substitution variables:"
+        echo "  _VITE_SUPABASE_URL = ${_VITE_SUPABASE_URL}"
+        echo "  _VITE_SUPABASE_ANON_KEY = ${_VITE_SUPABASE_ANON_KEY:0:30}..."
+        echo "  _VITE_API_BASE_URL = ${_VITE_API_BASE_URL}"
+
   # Step 1: Build the production Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-image'
+
     args:
       - 'build'
       - '--no-cache'
       - '--file'
       - 'Dockerfile'
       - '--build-arg'
-      - 'VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}'
+      - 'VITE_SUPABASE_URL=https://lydxcnvyzqaumfmfktor.supabase.co'
       - '--build-arg'
-      - 'VITE_SUPABASE_ANON_KEY=${_VITE_SUPABASE_ANON_KEY}'
+      - 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5ZHhjbnZ5enFhdW1mbWZrdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDA2MTYsImV4cCI6MjA3Mzc3NjYxNn0.k6KTuE60TCOQi9YK4CdEZPmHYVc6__13qtVqa8lSn_o'
       - '--build-arg'
-      - 'VITE_API_BASE_URL=${_VITE_API_BASE_URL}'
+      - 'VITE_API_BASE_URL=https://medical-assistant-506044864836.us-central1.run.app'
       - '--tag'
       - 'gcr.io/$PROJECT_ID/medical-assistant:latest'
       - '.'
