@@ -60,8 +60,12 @@ class CORSConfig:
             if allowed_origins_str:
                 allowed_origins = [origin.strip() for origin in allowed_origins_str.split(',')]
             else:
-                # Default production domain (should be set in environment)
-                allowed_origins = ["https://your-frontend-domain.com"]
+                # Default production domains - allow Cloud Run domains
+                allowed_origins = [
+                    "https://your-frontend-domain.com",
+                    "https://medical-assistant-us-central1-medai-europe-west1-raghav702-med-ai.a.run.app",
+                    "https://medical-assistant-506044864836.us-central1.run.app"
+                ]
         else:
             # Development: allow localhost and common development ports
             allowed_origins = [
