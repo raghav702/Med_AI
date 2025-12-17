@@ -1,7 +1,9 @@
 import React from 'react';
-import { Bot, User, Check, CheckCheck, Clock, AlertTriangle } from 'lucide-react';
+import { Bot, User, Check, CheckCheck, Clock, AlertTriangle, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChatMessage as ConversationChatMessage } from '@/types/conversation';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatMessageProps {
   message: ConversationChatMessage;
@@ -20,9 +22,84 @@ const MessageStatusIcon: React.FC<{ type?: ConversationChatMessage['type'] }> = 
 };
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message, className }) => {
+  const navigate = useNavigate();
   const isUser = message.role === 'user';
   const isEmergency = message.type === 'emergency_alert';
   const isUrgent = message.metadata?.urgencyLevel === 'high' || message.metadata?.urgencyLevel === 'emergency';
+
+  // Parse and render message content with doctor listings
+  const renderMessageContent = (content: string) => {
+    // Check if message contains doctor listings with IDs
+    const doctorIdPattern = /\[DOCTOR_ID:([^\]]+)\]/g;
+    const matches = [...content.matchAll(doctorIdPattern)];
+    
+    if (matches.length === 0) {
+      // No doctor IDs, return plain text
+      return <span>{content}</span>;
+    }
+
+    // Parse doctor entries - each doctor starts with a number and ends with "Book Appointment"
+    const doctorEntryPattern = /(\d+\.\s+[^[]+)\[DOCTOR_ID:([^\]]+)\]([^]*?)(?=\d+\.\s+[^[]+\[DOCTOR_ID:|$)/g;
+    const doctorEntries: Array<{ headerText: string; id: string; detailsText: string }> = [];
+    
+    // First, extract the header line (e.g., "Found 5 nearest doctor(s)...")
+    const headerMatch = content.match(/^(.*?)(?=\d+\.\s+)/s);
+    const headerText = headerMatch ? headerMatch[1].trim() : '';
+    
+    let match;
+    while ((match = doctorEntryPattern.exec(content)) !== null) {
+      doctorEntries.push({
+        headerText: match[1].trim(),
+        id: match[2],
+        detailsText: match[3].trim()
+      });
+    }
+
+    if (doctorEntries.length === 0) {
+      // Fallback: simple rendering if pattern doesn't match
+      return <span>{content.replace(/\[DOCTOR_ID:[^\]]+\]/g, '')}</span>;
+    }
+
+    return (
+      <div className="space-y-1">
+        {/* Header */}
+        {headerText && (
+          <p className="font-medium mb-3">{headerText}</p>
+        )}
+        
+        {/* Doctor entries */}
+        {doctorEntries.map((entry, idx) => (
+          <div key={idx} className="border-l-2 border-blue-200 pl-3 py-2 mb-2 bg-white/50 rounded-r">
+            {/* Doctor name and specialty */}
+            <p className="font-medium text-gray-900">{entry.headerText}</p>
+            
+            {/* Doctor details */}
+            <div className="text-gray-600 whitespace-pre-wrap mt-1">
+              {entry.detailsText.split('\n').map((line, lineIdx) => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine || trimmedLine.includes("Click 'Book Appointment'")) return null;
+                return (
+                  <div key={lineIdx} className="leading-relaxed">
+                    {trimmedLine}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Book Appointment button */}
+            <Button
+              size="sm"
+              onClick={() => navigate(`/doctor-discovery?doctorId=${entry.id}`)}
+              className="mt-2 bg-red-500 hover:bg-red-600"
+            >
+              <Calendar className="h-3 w-3 mr-1" />
+              Book Appointment
+            </Button>
+          </div>
+        ))}
+      </div>
+    );
+  };
   
   return (
     <div className={cn(
@@ -80,7 +157,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, className }) 
             'text-sm leading-relaxed whitespace-pre-wrap',
             isEmergency && 'font-medium'
           )}>
-            {message.content}
+            {renderMessageContent(message.content)}
           </div>
           
           {/* Emergency contact info for emergency messages */}

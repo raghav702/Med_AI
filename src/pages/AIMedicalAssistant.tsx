@@ -375,47 +375,63 @@ export default function AIMedicalAssistant() {
       return <p className="text-sm whitespace-pre-wrap">{content}</p>;
     }
 
-    // Extract doctor info and IDs
-    const lines = content.split('\n');
-    const doctorBlocks: Array<{ text: string; id: string | null }> = [];
-    let currentBlock = '';
-    let currentId: string | null = null;
+    // Parse doctor entries - each doctor starts with a number and ends with "Book Appointment"
+    const doctorEntryPattern = /(\d+\.\s+[^[]+)\[DOCTOR_ID:([^\]]+)\]([^]*?)(?=\d+\.\s+[^[]+\[DOCTOR_ID:|$)/g;
+    const doctorEntries: Array<{ headerText: string; id: string; detailsText: string }> = [];
+    
+    // First, extract the header line (e.g., "Found 5 nearest doctor(s)...")
+    const headerMatch = content.match(/^(.*?)(?=\d+\.\s+)/s);
+    const headerText = headerMatch ? headerMatch[1].trim() : '';
+    
+    let match;
+    while ((match = doctorEntryPattern.exec(content)) !== null) {
+      doctorEntries.push({
+        headerText: match[1].trim(),
+        id: match[2],
+        detailsText: match[3].trim()
+      });
+    }
 
-    lines.forEach((line) => {
-      const match = line.match(/\[DOCTOR_ID:([^\]]+)\]/);
-      if (match) {
-        // This line has a doctor ID - save previous block and start new one
-        if (currentBlock) {
-          doctorBlocks.push({ text: currentBlock, id: currentId });
-        }
-        currentId = match[1];
-        currentBlock = line.replace(/\[DOCTOR_ID:[^\]]+\]/, '').trim();
-      } else {
-        // Continue building current block
-        currentBlock += (currentBlock ? '\n' : '') + line;
-      }
-    });
-
-    // Don't forget the last block
-    if (currentBlock) {
-      doctorBlocks.push({ text: currentBlock, id: currentId });
+    if (doctorEntries.length === 0) {
+      // Fallback: simple rendering if pattern doesn't match
+      return <p className="text-sm whitespace-pre-wrap">{content.replace(/\[DOCTOR_ID:[^\]]+\]/g, '')}</p>;
     }
 
     return (
-      <div className="space-y-3">
-        {doctorBlocks.map((block, idx) => (
-          <div key={idx}>
-            <p className="text-sm whitespace-pre-wrap">{block.text}</p>
-            {block.id && (
-              <Button
-                size="sm"
-                onClick={() => navigate(`/doctor-discovery?doctorId=${block.id}`)}
-                className="mt-2"
-              >
-                <Calendar className="h-3 w-3 mr-1" />
-                Book Appointment
-              </Button>
-            )}
+      <div className="space-y-1">
+        {/* Header */}
+        {headerText && (
+          <p className="text-sm font-medium mb-3">{headerText}</p>
+        )}
+        
+        {/* Doctor entries */}
+        {doctorEntries.map((entry, idx) => (
+          <div key={idx} className="border-l-2 border-blue-200 pl-3 py-2 mb-2 bg-gray-50/50 rounded-r">
+            {/* Doctor name and specialty */}
+            <p className="text-sm font-medium text-gray-900">{entry.headerText}</p>
+            
+            {/* Doctor details */}
+            <div className="text-sm text-gray-600 whitespace-pre-wrap mt-1">
+              {entry.detailsText.split('\n').map((line, lineIdx) => {
+                const trimmedLine = line.trim();
+                if (!trimmedLine || trimmedLine.includes("Click 'Book Appointment'")) return null;
+                return (
+                  <div key={lineIdx} className="leading-relaxed">
+                    {trimmedLine}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Book Appointment button */}
+            <Button
+              size="sm"
+              onClick={() => navigate(`/doctor-discovery?doctorId=${entry.id}`)}
+              className="mt-2 bg-red-500 hover:bg-red-600"
+            >
+              <Calendar className="h-3 w-3 mr-1" />
+              Book Appointment
+            </Button>
           </div>
         ))}
       </div>
