@@ -8,7 +8,6 @@ import { HeroSection } from '@/components/dashboard/HeroSection';
 import { AIFeaturesGrid } from '@/components/dashboard/AIFeaturesGrid';
 import { RecentConversations } from '@/components/dashboard/RecentConversations';
 import { AboutApp } from '@/components/dashboard/AboutApp';
-import { FloatingAIButton } from '@/components/dashboard/FloatingAIButton';
 import { Footer } from '@/components/dashboard/Footer';
 
 /**
@@ -64,7 +63,6 @@ const Dashboard = () => {
         <AboutApp />
       </div>
 
-      <FloatingAIButton />
       <Footer />
     </NavigationLayout>
   );
