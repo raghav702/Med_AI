@@ -16,6 +16,11 @@ venv/
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Environment files (secrets come from Cloud Run)
+.env
+.env.local
+.env.*.local
+
 # IDE
 .vscode/
 .idea/

@@ -1,0 +1,428 @@
+2025-12-16 22:58:10 GET 200 https://medical-assistant-506044864836.us-central1.run.app/dashboard
+2025-12-16 22:58:10 INFO:     169.254.169.126:2664 - "GET /dashboard HTTP/1.1" 200 OK
+2025-12-16 22:58:11 GET 200 https://medical-assistant-506044864836.us-central1.run.app/assets/index-XCj7UMa-.js
+2025-12-16 22:58:11 GET 200 https://medical-assistant-506044864836.us-central1.run.app/assets/index-BAqh6sRg.css
+2025-12-16 22:58:11 INFO:     169.254.169.126:2668 - "GET /assets/index-XCj7UMa-.js HTTP/1.1" 200 OK
+2025-12-16 22:58:11 INFO:     169.254.169.126:2684 - "GET /assets/index-BAqh6sRg.css HTTP/1.1" 200 OK
+2025-12-16 22:58:31 INFO:     Shutting down
+2025-12-16 22:58:31 INFO:     Waiting for application shutdown.
+2025-12-16 22:58:31 INFO:     Application shutdown complete.
+2025-12-16 22:58:31 INFO:     Finished server process [1]
+2025-12-16 22:58:36 GET 200 https://medical-assistant-506044864836.us-central1.run.app/
+2025-12-16 22:58:36 INFO:     169.254.169.126:12800 - "GET / HTTP/1.1" 200 OK
+2025-12-16 22:58:36 GET 200 https://medical-assistant-506044864836.us-central1.run.app/assets/index-BAqh6sRg.css
+2025-12-16 22:58:36 INFO:     169.254.169.126:12806 - "GET /assets/index-BAqh6sRg.css HTTP/1.1" 200 OK
+2025-12-16 22:58:36 GET 200 https://medical-assistant-506044864836.us-central1.run.app/assets/index-XCj7UMa-.js
+2025-12-16 22:58:36 INFO:     169.254.169.126:42810 - "GET /assets/index-XCj7UMa-.js HTTP/1.1" 200 OK
+2025-12-16 22:58:38 GET 200 https://medical-assistant-506044864836.us-central1.run.app/favicon.ico
+2025-12-16 22:58:38 INFO:     169.254.169.126:42814 - "GET /favicon.ico HTTP/1.1" 200 OK
+2025-12-16 22:59:06 POST 200 https://medical-assistant-506044864836.us-central1.run.app/ask
+2025-12-16 22:59:06 2025-12-16 22:59:06,996 - main - INFO - {"timestamp": "2025-12-16T22:59:06.996409", "event_type": "request", "request_id": "987e186a-2799-4a37-8c4e-bd8d355667bd", "task_type": "auto", "message_length": 19, "session_id": "1765925936102-wkmajkvez", "metadata": {}}
+2025-12-16 22:59:06 2025-12-16 22:59:06,996 - main - INFO - Request 987e186a-2799-4a37-8c4e-bd8d355667bd: Creating new session 1765925936102-wkmajkvez
+2025-12-16 22:59:07 2025-12-16 22:59:07,187 - main - INFO - Request 987e186a-2799-4a37-8c4e-bd8d355667bd: Invoking agent for task_type=auto, session=1765925936102-wkmajkvez
+2025-12-16 22:59:07 2025-12-16 22:59:07,913 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:07 2025-12-16 22:59:07,929 - tools - ERROR - find_nearest_doctors_tool: Error - [Errno -2] Name or service not known
+2025-12-16 22:59:07 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:07 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:07 Traceback (most recent call last):
+  File "/app/tools.py", line 545, in find_nearest_doctors_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:08 2025-12-16 22:59:08,745 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:08 2025-12-16 22:59:08,755 - tools - ERROR - find_nearest_doctors_tool: Error - [Errno -2] Name or service not known
+2025-12-16 22:59:08 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:08 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:08 Traceback (most recent call last):
+  File "/app/tools.py", line 545, in find_nearest_doctors_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:09 2025-12-16 22:59:09,460 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:09 2025-12-16 22:59:09,467 - tools - ERROR - find_nearest_doctors_tool: Error - [Errno -2] Name or service not known
+2025-12-16 22:59:09 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:09 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:09 Traceback (most recent call last):
+  File "/app/tools.py", line 545, in find_nearest_doctors_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:10 2025-12-16 22:59:10,332 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:10 2025-12-16 22:59:10,339 - tools - ERROR - find_nearest_doctors_tool: Error - [Errno -2] Name or service not known
+2025-12-16 22:59:10 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:10 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:10 Traceback (most recent call last):
+  File "/app/tools.py", line 545, in find_nearest_doctors_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:11 2025-12-16 22:59:11,327 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:11 2025-12-16 22:59:11,334 - tools - ERROR - doctor_locator_tool: Database query error - [Errno -2] Name or service not known
+2025-12-16 22:59:11 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:11 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:11 Traceback (most recent call last):
+  File "/app/tools.py", line 294, in doctor_locator_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:12 2025-12-16 22:59:12,048 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:12 2025-12-16 22:59:12,057 - tools - ERROR - doctor_locator_tool: Database query error - [Errno -2] Name or service not known
+2025-12-16 22:59:12 Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 78, in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_sync/connection.py", line 124, in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_backends/sync.py", line 207, in connect_tcp
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:12 The above exception was the direct cause of the following exception:
+2025-12-16 22:59:12 Traceback (most recent call last):
+  File "/app/tools.py", line 294, in doctor_locator_tool
+    response = query.execute()
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/_sync/request_builder.py", line 47, in execute
+    r = self.request.send()
+        ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/postgrest/base_request_builder.py", line 81, in send
+    return self.session.request(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/usr/local/lib/python3.11/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno -2] Name or service not known
+2025-12-16 22:59:12 2025-12-16 22:59:12,547 - httpx - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent "HTTP/1.1 200 OK"
+2025-12-16 22:59:12 2025-12-16 22:59:12,551 - main - INFO - {"timestamp": "2025-12-16T22:59:12.551715", "event_type": "tool_execution", "request_id": "987e186a-2799-4a37-8c4e-bd8d355667bd", "tool_name": "doctor_locator_tool", "success": true, "error_message": null, "execution_time_ms": null}
+2025-12-16 22:59:12 2025-12-16 22:59:12,551 - main - INFO - {"timestamp": "2025-12-16T22:59:12.551854", "event_type": "response", "request_id": "987e186a-2799-4a37-8c4e-bd8d355667bd", "task_type": "auto", "tools_used": ["doctor_locator_tool"], "response_time_ms": 5555.45, "emergency": false, "context_switched": false, "session_id": "1765925936102-wkmajkvez", "status": "success"}
+2025-12-16 22:59:12 INFO:     169.254.169.126:31768 - "POST /ask HTTP/1.1" 200 OK
+2025-12-16 23:08:16 ?? Running in cloud environment (no .env.local file)
+2025-12-16 23:08:16 ? Google API Key loaded successfully (length: 42)
+2025-12-16 23:08:16 ? Debug - SUPABASE_URL from env: https://lydxcnvyzqaumfmfktor.s...
+2025-12-16 23:08:16 ? Debug - SUPABASE_SERVICE_KEY exists: True
+2025-12-16 23:08:16 ? Supabase configuration loaded successfully
+2025-12-16 23:08:16 ? Testing DNS resolution for: lydxcnvyzqaumfmfktor.supabase.co 
+2025-12-16 23:08:16 ? DNS resolution failed: [Errno -2] Name or service not known
+2025-12-16 23:08:18 ? Supabase client initialized successfully
+2025-12-16 23:08:18 ? Testing Supabase connection...
+2025-12-16 23:08:18 ? Supabase connection test failed: [Errno -2] Name or service not known
+2025-12-16 23:08:20 2025-12-16 23:08:20,841 - security - INFO - {"timestamp": "2025-12-16T23:08:20.841830", "event_type": "security_config_loaded", "ip_address": "system", "severity": "INFO", "details": {"log_level": "INFO", "configured_at": "2025-12-16T23:08:20.841817"}}
+2025-12-16 23:08:20 2025-12-16 23:08:20,841 - security - INFO - {"timestamp": "2025-12-16T23:08:20.841830", "event_type": "security_config_loaded", "ip_address": "system", "severity": "INFO", "details": {"log_level": "INFO", "configured_at": "2025-12-16T23:08:20.841817"}}
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - security_metrics - INFO - SecurityMetricsCollector initialized: retention=24h, max_events=10000
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - security - INFO - {"timestamp": "2025-12-16T23:08:20.842065", "event_type": "security_config_loaded", "ip_address": "system", "severity": "INFO", "details": {"cors_origins": 8, "rate_limiting_enabled": true, "input_validation_enabled": true, "metrics_retention_hours": 24}}
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - security - INFO - {"timestamp": "2025-12-16T23:08:20.842065", "event_type": "security_config_loaded", "ip_address": "system", "severity": "INFO", "details": {"cors_origins": 8, "rate_limiting_enabled": true, "input_validation_enabled": true, "metrics_retention_hours": 24}}
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - main - INFO - Configuration validation completed
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - main - INFO - ? Application started successfully with valid configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,842 - main - INFO - UnifiedAgentFactory initialized successfully
+2025-12-16 23:08:20 2025-12-16 23:08:20,861 - main - INFO - Verified task type 'auto' configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,867 - main - INFO - Verified task type 'symptom_analysis' configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,880 - main - INFO - Verified task type 'doctor_matching' configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,886 - main - INFO - Verified task type 'health_qa' configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,893 - main - INFO - Verified task type 'medication_info' configuration
+2025-12-16 23:08:20 2025-12-16 23:08:20,893 - main - INFO - SessionManager initialized successfully
+2025-12-16 23:08:20 INFO:     Started server process [1]
+2025-12-16 23:08:20 INFO:     Waiting for application startup.
+2025-12-16 23:08:20 2025-12-16 23:08:20,908 - rate_limiter - INFO - RateLimiter initialized: 5/min, 50/hour, block_duration=3600s
+2025-12-16 23:08:20 2025-12-16 23:08:20,908 - rate_limit_middleware - INFO - RateLimitMiddleware initialized with 5/min, 50/hour limits, exempt paths: ['/health', '/docs', '/openapi.json', '/redoc', '/static', '/assets', '/rate-limit/stats']
+2025-12-16 23:08:20 2025-12-16 23:08:20,908 - input_validator - INFO - InputValidator initialized: max_length=1000, min_length=1, max_repeated_chars=10
+2025-12-16 23:08:20 2025-12-16 23:08:20,908 - input_validation_middleware - INFO - InputValidationMiddleware initialized with max_length=1000, validation_paths=['/ask', '/ask-legacy'], exempt_paths=['/health', '/docs', '/openapi.json', '/redoc', '/static', '/assets', '/rate-limit/stats']
+2025-12-16 23:08:20 INFO:     Application startup complete.
+2025-12-16 23:08:20 INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+2025-12-16 23:10:29 INFO:     Shutting down
+2025-12-16 23:10:29 INFO:     Waiting for application shutdown.
+2025-12-16 23:10:29 INFO:     Application shutdown complete.
+2025-12-16 23:10:29 INFO:     Finished server process [1]

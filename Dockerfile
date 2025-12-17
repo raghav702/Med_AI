@@ -51,13 +51,17 @@ RUN env | grep VITE || echo "❌ NO VITE VARS FOUND"
 RUN node -e "console.log('VITE_SUPABASE_URL =', process.env.VITE_SUPABASE_URL)"
 RUN node -e "console.log('VITE_SUPABASE_ANON_KEY =', process.env.VITE_SUPABASE_ANON_KEY?.slice(0,10))"
 
+# Validate that required variables are set
+RUN test -n "$VITE_SUPABASE_URL" || (echo "❌ VITE_SUPABASE_URL is not set" && exit 1)
+RUN test -n "$VITE_SUPABASE_ANON_KEY" || (echo "❌ VITE_SUPABASE_ANON_KEY is not set" && exit 1)
+
 # Build the frontend - Vite will embed these values into the static files
 RUN npm run build && \
     echo "✅ Frontend build complete" && \
     echo "📦 Checking dist folder:" && \
     ls -la dist/ && \
     echo "🔍 Verifying embedded config in built files:" && \
-    grep -r "lydxcnvyzqaumfmfktor" dist/assets/ || echo "⚠️ Supabase URL not found in built files!"
+    (grep -r "lydxcnvyzqaumfmfktor" dist/assets/ && echo "✅ Supabase URL found in built files!") || echo "⚠️ Supabase URL not found in built files - continuing anyway"
 
 # ============================================================================
 # Stage 2: Python Backend Setup

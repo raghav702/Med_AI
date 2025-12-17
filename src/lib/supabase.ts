@@ -39,7 +39,10 @@ export function validateSupabaseConfig(): ConfigValidationResult {
       hasUrl: !!url,
       hasAnonKey: !!anonKey,
       urlValue: url ? `${url.substring(0, 20)}...` : 'undefined',
-      mode: import.meta.env.MODE
+      mode: import.meta.env.MODE,
+      // Additional debugging
+      rawUrl: url,
+      rawKeyLength: anonKey?.length || 0
     });
   }
   
