@@ -58,7 +58,7 @@ steps:
       '--set-secrets', 'GOOGLE_API_KEY=GOOGLE_API_KEY:latest',
       '--set-secrets', 'SUPABASE_URL=SUPABASE_URL:latest',
       '--set-secrets', 'SUPABASE_SERVICE_ROLE_KEY=SUPABASE_SERVICE_ROLE_KEY:latest',
-      '--set-env-vars', 'CORS_ALLOWED_ORIGINS=https://medical-assistant-${_REGION}-${PROJECT_ID}.a.run.app'
+      '--set-env-vars', 'CORS_ALLOWED_ORIGINS=https://medai-506044864836.europe-west1.run.app,https://medical-assistant-506044864836.us-central1.run.app'
     ]
     waitFor: ['push-image']
 
