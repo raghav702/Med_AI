@@ -12,7 +12,7 @@ FROM node:18-alpine AS frontend-builder
 RUN echo "🚨 USING UPDATED DOCKERFILE 🚨"
 
 # Accept build-time arguments with fallback to production values
-ARG VITE_API_BASE_URL=https://medical-assistant-506044864836.us-central1.run.app
+ARG VITE_API_BASE_URL=https://medai-506044864836.europe-west1.run.app
 ARG VITE_SUPABASE_URL=https://lydxcnvyzqaumfmfktor.supabase.co
 ARG VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5ZHhjbnZ5enFhdW1mbWZrdG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDA2MTYsImV4cCI6MjA3Mzc3NjYxNn0.k6KTuE60TCOQi9YK4CdEZPmHYVc6__13qtVqa8lSn_o
 
