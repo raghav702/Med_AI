@@ -440,9 +440,9 @@ export default function AIMedicalAssistant() {
 
   return (
     <NavigationLayout>
-      <div className="h-[calc(100vh-8rem)] flex flex-col">
+      <div className="h-[calc(100vh-4rem)] flex flex-col">
         {/* Warning Alert */}
-        <Alert className="mb-0 py-2 rounded-b-none border-b-0 shadow-none">
+        <Alert className="mb-0 py-1.5 sm:py-2 rounded-none border-x-0 shadow-none flex-shrink-0">
           <AlertCircle className="h-3.5 w-3.5" />
           <AlertDescription className="text-xs flex items-center justify-between">
             <span>
@@ -458,14 +458,14 @@ export default function AIMedicalAssistant() {
         </Alert>
 
         {/* Chat Card */}
-        <Card className="flex-1 flex flex-col rounded-t-none border-t-0 mt-0 shadow-none overflow-hidden">
-          <CardHeader className="py-2 px-4 border-b">
+        <Card className="flex-1 flex flex-col rounded-none border-x-0 border-b-0 shadow-none overflow-hidden">
+          <CardHeader className="py-2 px-4 border-b flex-shrink-0">
             <CardTitle className="text-sm flex items-center gap-2">
               <Bot className="h-4 w-4" />
               Chat with AI Assistant
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden min-h-0">
             {/* Messages Area */}
             <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
               <div className="space-y-4 pt-4 pb-2">
@@ -608,8 +608,8 @@ export default function AIMedicalAssistant() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="border-t px-4 pt-3">
-              <div className="flex gap-2 mb-1.5">
+            <div className="border-t px-4 py-2 flex-shrink-0 bg-white">
+              <div className="flex gap-2">
                 <Input
                   ref={inputRef}
                   value={input}
@@ -632,7 +632,7 @@ export default function AIMedicalAssistant() {
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 leading-tight pb-3">
+              <p className="text-xs text-gray-500 leading-tight mt-1">
                 Press Enter to send • Shift+Enter for new line
               </p>
             </div>
