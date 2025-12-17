@@ -62,9 +62,6 @@ class CORSConfig:
             else:
                 # Default production domains - allow Cloud Run domains
                 allowed_origins = [
-                    "https://your-frontend-domain.com",
-                    "https://medical-assistant-us-central1-medai-europe-west1-raghav702-med-ai.a.run.app",
-                    "https://medical-assistant-506044864836.us-central1.run.app",
                     "https://medai-506044864836.europe-west1.run.app"
                 ]
         else:
